@@ -7,7 +7,7 @@ export const COURSES: Course[] = [
     slug: 'full-stack-dotnet-10',
     category: 'backend',
     difficulty: 'advanced',
-    accentHex: '#4f46e5',
+    accentHex: '#1d4ed8',
     title: {
       en: 'Full-Stack .NET 10',
       vi: 'Full-Stack .NET 10 Thực Chiến',

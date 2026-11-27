@@ -1,0 +1,465 @@
+openapi: 3.1.0
+info:
+  title: Solaris Academy API
+  version: 2.0.0
+  summary: Zero-Eval Python AST Auto-Grader, SM-2 Scheduler & HMAC-SHA256 Certificate Registry
+  description: |
+    Production Python 3.12 FastAPI backend powering Solaris Academy v2.0.
+    Provides deterministic zero-eval AST sandbox grading with bounded execution budgets,
+    SuperMemo-2 spaced-repetition scheduling, and constant-time HMAC-SHA256 certificate verification.
+  contact:
+    name: Truong Van Tinh (TVT Studio)
+    url: https://github.com/tvt987/solaris-academy
+    email: tinhkun102@gmail.com
+servers:
+  - url: http://localhost:8000
+    description: Local FastAPI Uvicorn Server
+  - url: http://localhost:8080
+    description: Docker Compose Nginx Reverse Proxy
+tags:
+  - name: System
+    description: Health and engine readiness telemetry
+  - name: AST Grader
+    description: Zero-eval Python AST security validation and deterministic unit test grading
+  - name: SM-2 Spaced Repetition
+    description: Pure SuperMemo-2 interval and ease-factor calculation
+  - name: HMAC Certificates
+    description: Deterministic HMAC-SHA256 credential issuance and tamper-resistant verification
+
+paths:
+  /health:
+    get:
+      tags: [System]
+      summary: Service health and sandbox runtime status
+      operationId: getHealth
+      responses:
+        '200':
+          description: Service is healthy and ready
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+              example:
+                status: ok
+                service: solaris-academy-api
+                version: 2.0.0
+                sandbox_engine: python-ast-zero-eval
+
+  /api/v1/sandbox/grade:
+    post:
+      tags: [AST Grader]
+      summary: Statically validate Python AST safety and grade against unit test cases
+      operationId: gradeSandboxSubmission
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SandboxGradeRequest'
+            example:
+              code: |
+                def two_sum(nums, target):
+                    seen = {}
+                    for i, val in enumerate(nums):
+                        comp = target - val
+                        if comp in seen:
+                            return [seen[comp], i]
+                        seen[val] = i
+                    return []
+              function_name: two_sum
+              xp_reward: 150
+              max_steps: 10000
+              test_cases:
+                - name: Standard pair
+                  args: [[2, 7, 11, 15], 9]
+                  expected: [0, 1]
+      responses:
+        '200':
+          description: AST validated and all test cases evaluated deterministically
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SandboxGradeResponse'
+        '400':
+          description: AST security violation (import/exec/eval/open/__dunder__) or syntax error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SandboxErrorResponse'
+              example:
+                detail:
+                  code: AST_SECURITY_VIOLATION
+                  message: Submitted Python code violated static AST sandbox security policy.
+                  violations:
+                    - "Import statement blocked: 'import os'"
+        '422':
+          description: Request payload validation failure
+
+  /api/v1/srs/review:
+    post:
+      tags: [SM-2 Spaced Repetition]
+      summary: Compute next SuperMemo-2 review interval, Ease Factor, and due date
+      operationId: reviewSrsCard
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Sm2ReviewRequest'
+            example:
+              card_id: fc-dotnet-1
+              rating: good
+              repetitions: 1
+              interval_days: 1
+              ease_factor: 2.5
+              lapses: 0
+              reviewed_at: '2026-11-27T00:00:00Z'
+      responses:
+        '200':
+          description: Updated SM-2 card schedule and next rating previews
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Sm2ReviewResponse'
+        '422':
+          description: Invalid rating or out-of-range parameters
+
+  /api/v1/certificates/issue:
+    post:
+      tags: [HMAC Certificates]
+      summary: Issue an HMAC-SHA256 signed completion certificate payload
+      operationId: issueCertificate
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CertificateIssueRequest'
+            example:
+              student_name: Truong Van Tinh
+              course_code: DN10
+              course_title: Full-Stack .NET 10
+              issue_date: '2026-11-27'
+              honors: true
+      responses:
+        '200':
+          description: Signed certificate metadata and 64-char hex HMAC-SHA256 signature
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CertificateIssueResponse'
+
+  /api/v1/certificates/verify:
+    post:
+      tags: [HMAC Certificates]
+      summary: Verify certificate authenticity via constant-time HMAC-SHA256 comparison
+      operationId: verifyCertificate
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CertificateVerifyRequest'
+      responses:
+        '200':
+          description: Constant-time cryptographic verification result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CertificateVerifyResponse'
+
+components:
+  schemas:
+    HealthResponse:
+      type: object
+      required: [status, service, version, sandbox_engine]
+      properties:
+        status:
+          type: string
+          enum: [ok]
+        service:
+          type: string
+        version:
+          type: string
+        sandbox_engine:
+          type: string
+
+    SandboxTestCase:
+      type: object
+      required: [name, expected]
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 120
+        args:
+          type: array
+          items: {}
+          default: []
+        expected: {}
+
+    SandboxGradeRequest:
+      type: object
+      required: [code, function_name, test_cases]
+      properties:
+        code:
+          type: string
+          minLength: 1
+          maxLength: 25000
+        function_name:
+          type: string
+          pattern: '^[A-Za-z][A-Za-z0-9_]*$'
+        test_cases:
+          type: array
+          minItems: 1
+          maxItems: 50
+          items:
+            $ref: '#/components/schemas/SandboxTestCase'
+        xp_reward:
+          type: integer
+          minimum: 0
+          maximum: 1000
+          default: 120
+        max_steps:
+          type: integer
+          minimum: 100
+          maximum: 50000
+          default: 10000
+
+    SandboxCaseResult:
+      type: object
+      required: [name, passed, expected, actual, duration_ms]
+      properties:
+        name:
+          type: string
+        passed:
+          type: boolean
+        expected: {}
+        actual: {}
+        duration_ms:
+          type: number
+        error:
+          type: [string, 'null']
+
+    SandboxGradeResponse:
+      type: object
+      required:
+        - passed_all
+        - passed_count
+        - total_count
+        - score_pct
+        - xp_awarded
+        - execution_ms
+        - ast_nodes_checked
+        - steps_executed
+        - results
+      properties:
+        passed_all:
+          type: boolean
+        passed_count:
+          type: integer
+        total_count:
+          type: integer
+        score_pct:
+          type: integer
+        xp_awarded:
+          type: integer
+        execution_ms:
+          type: number
+        ast_nodes_checked:
+          type: integer
+        steps_executed:
+          type: integer
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/SandboxCaseResult'
+
+    SandboxErrorResponse:
+      type: object
+      required: [detail]
+      properties:
+        detail:
+          type: object
+          required: [code, message, violations]
+          properties:
+            code:
+              type: string
+              enum: [AST_SECURITY_VIOLATION, SANDBOX_SYNTAX_ERROR]
+            message:
+              type: string
+            violations:
+              type: array
+              items:
+                type: string
+
+    Sm2ReviewRequest:
+      type: object
+      required: [card_id, rating]
+      properties:
+        card_id:
+          type: string
+        rating:
+          type: string
+          enum: [again, hard, good, easy]
+        repetitions:
+          type: integer
+          minimum: 0
+          default: 0
+        interval_days:
+          type: integer
+          minimum: 0
+          default: 0
+        ease_factor:
+          type: number
+          minimum: 1.3
+          maximum: 5.0
+          default: 2.5
+        lapses:
+          type: integer
+          minimum: 0
+          default: 0
+        reviewed_at:
+          type: [string, 'null']
+          format: date-time
+
+    Sm2ReviewResponse:
+      type: object
+      required:
+        - card_id
+        - rating
+        - quality
+        - repetitions
+        - interval_days
+        - ease_factor
+        - lapses
+        - due_at
+        - is_mastered
+        - next_interval_preview
+      properties:
+        card_id:
+          type: string
+        rating:
+          type: string
+          enum: [again, hard, good, easy]
+        quality:
+          type: integer
+        repetitions:
+          type: integer
+        interval_days:
+          type: integer
+        ease_factor:
+          type: number
+        lapses:
+          type: integer
+        due_at:
+          type: string
+          format: date-time
+        is_mastered:
+          type: boolean
+        next_interval_preview:
+          type: object
+          additionalProperties:
+            type: string
+
+    CertificateIssueRequest:
+      type: object
+      required: [student_name, course_code, course_title, issue_date]
+      properties:
+        student_name:
+          type: string
+        course_code:
+          type: string
+        course_title:
+          type: string
+        issue_date:
+          type: string
+          pattern: '^\d{4}-\d{2}-\d{2}$'
+        honors:
+          type: boolean
+          default: true
+
+    CertificateIssueResponse:
+      type: object
+      required:
+        - credential_id
+        - student_name
+        - course_code
+        - course_title
+        - issue_date
+        - honors
+        - algorithm
+        - signature
+        - verification_url
+        - issued_at
+      properties:
+        credential_id:
+          type: string
+        student_name:
+          type: string
+        course_code:
+          type: string
+        course_title:
+          type: string
+        issue_date:
+          type: string
+        honors:
+          type: boolean
+        algorithm:
+          type: string
+          enum: [HMAC-SHA256]
+        signature:
+          type: string
+          minLength: 64
+          maxLength: 64
+        verification_url:
+          type: string
+          format: uri
+        issued_at:
+          type: string
+          format: date-time
+
+    CertificateVerifyRequest:
+      type: object
+      required:
+        - credential_id
+        - student_name
+        - course_code
+        - course_title
+        - issue_date
+        - honors
+        - signature
+      properties:
+        credential_id:
+          type: string
+        student_name:
+          type: string
+        course_code:
+          type: string
+        course_title:
+          type: string
+        issue_date:
+          type: string
+          pattern: '^\d{4}-\d{2}-\d{2}$'
+        honors:
+          type: boolean
+        signature:
+          type: string
+          minLength: 64
+          maxLength: 64
+
+    CertificateVerifyResponse:
+      type: object
+      required: [valid, credential_id, algorithm, reason, verified_at]
+      properties:
+        valid:
+          type: boolean
+        credential_id:
+          type: string
+        algorithm:
+          type: string
+        reason:
+          type: string
+        verified_at:
+          type: string
+          format: date-time

@@ -8,34 +8,44 @@
   --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
 }
 
+/* Crisp Oxford Academic Paper (Default Daylight Theme) */
 :root {
   color-scheme: light;
-  --sol-bg: #f6f5f0;
+  --sol-bg: #f9fafb;
   --sol-surface: #ffffff;
-  --sol-elevated: #f0eee7;
-  --sol-border: rgba(15, 23, 42, 0.1);
-  --sol-border-strong: rgba(15, 23, 42, 0.18);
+  --sol-elevated: #f1f5f9;
+  --sol-primary: #1d4ed8;
+  --sol-primary-hover: #1e40af;
+  --sol-emerald: #059669;
+  --sol-border: rgba(15, 23, 42, 0.09);
+  --sol-border-strong: rgba(15, 23, 42, 0.16);
   --sol-text: #0f172a;
   --sol-text-secondary: #334155;
   --sol-text-muted: #64748b;
-  --sol-grid: rgba(15, 23, 42, 0.045);
+  --sol-grid: rgba(29, 78, 216, 0.045);
   --sol-code-bg: #0f172a;
   --sol-code-text: #e2e8f0;
+  --sol-card-shadow: 0 1px 2px rgba(15, 23, 42, 0.04), 0 8px 24px -12px rgba(15, 23, 42, 0.08);
 }
 
+/* Optional Evening Study Dark Theme */
 .dark {
   color-scheme: dark;
-  --sol-bg: #080c15;
-  --sol-surface: #0f1626;
-  --sol-elevated: #151f34;
-  --sol-border: rgba(148, 163, 184, 0.14);
-  --sol-border-strong: rgba(148, 163, 184, 0.26);
+  --sol-bg: #0b1120;
+  --sol-surface: #11192c;
+  --sol-elevated: #17223a;
+  --sol-primary: #3b82f6;
+  --sol-primary-hover: #2563eb;
+  --sol-emerald: #10b981;
+  --sol-border: rgba(148, 163, 184, 0.15);
+  --sol-border-strong: rgba(148, 163, 184, 0.28);
   --sol-text: #f8fafc;
   --sol-text-secondary: #cbd5e1;
   --sol-text-muted: #94a3b8;
-  --sol-grid: rgba(148, 163, 184, 0.055);
-  --sol-code-bg: #070b13;
+  --sol-grid: rgba(59, 130, 246, 0.06);
+  --sol-code-bg: #070c17;
   --sol-code-text: #e2e8f0;
+  --sol-card-shadow: 0 1px 2px rgba(0, 0, 0, 0.25), 0 10px 28px -12px rgba(0, 0, 0, 0.45);
 }
 
 html {
@@ -63,6 +73,7 @@ body {
 .sol-card {
   background-color: var(--sol-surface);
   border: 1px solid var(--sol-border);
+  box-shadow: var(--sol-card-shadow);
 }
 
 .sol-elevated {
@@ -99,6 +110,22 @@ body {
 
 .sol-flip-back {
   transform: rotateY(180deg);
+}
+
+/* Dijkstra Shortest Path Glow */
+@keyframes solPathPulse {
+  0%,
+  100% {
+    stroke-opacity: 0.95;
+  }
+  50% {
+    stroke-opacity: 0.6;
+  }
+}
+
+.sol-path-glow {
+  filter: drop-shadow(0 0 6px rgba(5, 150, 105, 0.65));
+  animation: solPathPulse 2.2s ease-in-out infinite;
 }
 
 /* Custom subtle scrollbars */

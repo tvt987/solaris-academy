@@ -6,14 +6,14 @@ type IconProps = SVGProps<SVGSVGElement>;
 export function SolarisMark({ className = 'h-8 w-8', ...props }: IconProps) {
   return (
     <svg viewBox="0 0 64 64" fill="none" className={className} aria-hidden="true" {...props}>
-      <rect width="64" height="64" rx="16" className="fill-slate-950 dark:fill-slate-900" />
-      <rect x="1.5" y="1.5" width="61" height="61" rx="14.5" stroke="#4f46e5" strokeOpacity="0.45" strokeWidth="1.5" />
-      <circle cx="32" cy="32" r="20" stroke="#6366f1" strokeWidth="2.4" strokeDasharray="6 4" />
-      <circle cx="32" cy="32" r="11" fill="#4f46e5" />
+      <rect width="64" height="64" rx="16" className="fill-[#0f172a] dark:fill-slate-900" />
+      <rect x="1.5" y="1.5" width="61" height="61" rx="14.5" stroke="#1d4ed8" strokeOpacity="0.65" strokeWidth="1.5" />
+      <circle cx="32" cy="32" r="20" stroke="#3b82f6" strokeWidth="2.4" strokeDasharray="6 4" />
+      <circle cx="32" cy="32" r="11" fill="#1d4ed8" />
       <circle cx="32" cy="32" r="5" fill="#f59e0b" />
       <path
         d="M32 6v7M32 51v7M6 32h7M51 32h7M13.6 13.6l5 5M45.4 45.4l5 5M50.4 13.6l-5 5M18.6 45.4l-5 5"
-        stroke="#10b981"
+        stroke="#059669"
         strokeWidth="2.4"
         strokeLinecap="round"
       />
@@ -149,6 +149,43 @@ export function PlayIcon({ className = 'h-4 w-4', ...props }: IconProps) {
   return (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className} aria-hidden="true" {...props}>
       <polygon points="6 3 20 12 6 21 6 3" />
+    </svg>
+  );
+}
+
+export function PauseIcon({ className = 'h-4 w-4', ...props }: IconProps) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className} aria-hidden="true" {...props}>
+      <rect x="6" y="4" width="4" height="16" rx="1" />
+      <rect x="14" y="4" width="4" height="16" rx="1" />
+    </svg>
+  );
+}
+
+export function StepBackIcon({ className = 'h-4 w-4', ...props }: IconProps) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className} aria-hidden="true" {...props}>
+      <line x1="6" y1="5" x2="6" y2="19" />
+      <polygon points="18 5 9 12 18 19 18 5" />
+    </svg>
+  );
+}
+
+export function StepForwardIcon({ className = 'h-4 w-4', ...props }: IconProps) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className} aria-hidden="true" {...props}>
+      <polygon points="6 5 15 12 6 19 6 5" />
+      <line x1="18" y1="5" x2="18" y2="19" />
+    </svg>
+  );
+}
+
+export function CpuIcon({ className = 'h-4 w-4', ...props }: IconProps) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className={className} aria-hidden="true" {...props}>
+      <rect x="6" y="6" width="12" height="12" rx="2" />
+      <rect x="9" y="9" width="6" height="6" />
+      <path d="M9 2v4M15 2v4M9 18v4M15 18v4M2 9h4M2 15h4M18 9h4M18 15h4" />
     </svg>
   );
 }

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { Suspense, lazy, useEffect, useMemo, useRef, useState } from 'react';
 import type {
   CodeGradeReport,
   CodingChallenge,
@@ -30,13 +30,16 @@ import {
 import { Header } from './components/Header';
 import { HeroSection } from './components/HeroSection';
 import { CatalogSection } from './components/CatalogSection';
-import { SandboxSection } from './components/SandboxSection';
-import { FlashcardsSection } from './components/FlashcardsSection';
-import { CertificateSection } from './components/CertificateSection';
-import { CheckoutSection } from './components/CheckoutSection';
 import { CheckCircleIcon, RotateIcon, SolarisMark } from './components/Icons';
 
-const UI_PREFS_KEY = 'solaris_academy_ui_v1';
+// Route-level React.lazy code-splitting keeps initial entry JS ultra-lean
+const AlgorithmVisualizerLab = lazy(() => import('./components/AlgorithmVisualizerLab'));
+const CodeSandboxLab = lazy(() => import('./components/CodeSandboxLab'));
+const FlashcardTrainer = lazy(() => import('./components/FlashcardTrainer'));
+const CertificateModal = lazy(() => import('./components/CertificateModal'));
+const CheckoutModal = lazy(() => import('./components/CheckoutModal'));
+
+const UI_PREFS_KEY = 'solaris_academy_ui_v2';
 
 interface UiPrefs {
   locale: Locale;
@@ -45,7 +48,8 @@ interface UiPrefs {
 }
 
 function loadUiPrefs(): UiPrefs {
-  const defaults: UiPrefs = { locale: 'en', currency: 'VND', theme: 'dark' };
+  // Default boot theme: Crisp Oxford Academic Paper ('light')
+  const defaults: UiPrefs = { locale: 'en', currency: 'VND', theme: 'light' };
   if (typeof window === 'undefined') return defaults;
   try {
     const raw = window.localStorage.getItem(UI_PREFS_KEY);
@@ -54,7 +58,7 @@ function loadUiPrefs(): UiPrefs {
     return {
       locale: parsed.locale === 'vi' ? 'vi' : 'en',
       currency: parsed.currency === 'USD' ? 'USD' : 'VND',
-      theme: parsed.theme === 'light' ? 'light' : 'dark',
+      theme: parsed.theme === 'dark' ? 'dark' : 'light',
     };
   } catch {
     return defaults;
@@ -75,6 +79,19 @@ function bumpActivity(state: LearnerState, deltaXp: number): LearnerState {
     lastActiveDateIso: streak.lastActiveDateIso,
     weeklyActivity: nextWeekly,
   };
+}
+
+function WorkspaceFallback({ locale }: { locale: Locale }) {
+  return (
+    <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6">
+      <div className="sol-card flex flex-col items-center justify-center rounded-2xl p-10 text-center">
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-blue-700 border-t-transparent" />
+        <p className="mt-3 font-code text-xs font-semibold text-[var(--sol-text-muted)]">
+          {locale === 'vi' ? 'Đang nạp module học tập...' : 'Loading Solaris workspace module...'}
+        </p>
+      </div>
+    </div>
+  );
 }
 
 export function App() {
@@ -104,7 +121,6 @@ export function App() {
     toastTimerRef.current = window.setTimeout(() => setToast(null), 2800);
   };
 
-  // Handle ?verify=SOL-CERT-... deep link
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const verifyParam = params.get('verify');
@@ -114,7 +130,6 @@ export function App() {
     }
   }, []);
 
-  // Reconcile IndexedDB state on mount (only if user has not already interacted)
   useEffect(() => {
     let active = true;
     void loadLearnerStateFromIndexedDb().then((stored) => {
@@ -127,12 +142,10 @@ export function App() {
     };
   }, []);
 
-  // Persist learner state to localStorage + IndexedDB
   useEffect(() => {
     persistLearnerState(learner);
   }, [learner]);
 
-  // Persist UI preferences & sync document classes
   useEffect(() => {
     document.documentElement.classList.toggle('dark', theme === 'dark');
     document.documentElement.lang = locale;
@@ -383,65 +396,69 @@ export function App() {
           </>
         )}
 
-        {activeTab === 'sandbox' && (
-          <SandboxSection
-            courses={COURSES}
-            challenges={CODING_CHALLENGES}
-            questions={QUIZ_QUESTIONS}
-            locale={locale}
-            activeChallengeId={activeChallengeId}
-            solvedChallenges={learner.solvedChallenges}
-            onSelectChallenge={setActiveChallengeId}
-            onChallengePassed={handleChallengePassed}
-            onQuizCompleted={handleQuizCompleted}
-            onJumpToCertificate={handleOpenCertificate}
-          />
-        )}
+        <Suspense fallback={<WorkspaceFallback locale={locale} />}>
+          {activeTab === 'algorithms' && <AlgorithmVisualizerLab locale={locale} />}
 
-        {activeTab === 'flashcards' && (
-          <FlashcardsSection
-            courses={COURSES}
-            cards={FLASHCARDS}
-            locale={locale}
-            sm2States={learner.sm2States}
-            initialCourseFilter={flashcardCourseFilter}
-            onRateCard={handleRateFlashcard}
-            onResetDeck={handleResetDeck}
-          />
-        )}
+          {activeTab === 'sandbox' && (
+            <CodeSandboxLab
+              courses={COURSES}
+              challenges={CODING_CHALLENGES}
+              questions={QUIZ_QUESTIONS}
+              locale={locale}
+              activeChallengeId={activeChallengeId}
+              solvedChallenges={learner.solvedChallenges}
+              onSelectChallenge={setActiveChallengeId}
+              onChallengePassed={handleChallengePassed}
+              onQuizCompleted={handleQuizCompleted}
+              onJumpToCertificate={handleOpenCertificate}
+            />
+          )}
 
-        {activeTab === 'certificate' && (
-          <CertificateSection
-            courses={COURSES}
-            locale={locale}
-            learner={learner}
-            selectedCourseId={certCourseId}
-            initialVerifyQuery={initialVerifyQuery}
-            onSelectCourseId={setCertCourseId}
-            onUpdateStudentName={(name) => {
-              hasHydratedIdbRef.current = true;
-              setLearner((prev) => ({ ...prev, studentName: name }));
-            }}
-            onNotify={notify}
-          />
-        )}
+          {activeTab === 'flashcards' && (
+            <FlashcardTrainer
+              courses={COURSES}
+              cards={FLASHCARDS}
+              locale={locale}
+              sm2States={learner.sm2States}
+              initialCourseFilter={flashcardCourseFilter}
+              onRateCard={handleRateFlashcard}
+              onResetDeck={handleResetDeck}
+            />
+          )}
 
-        {activeTab === 'checkout' && (
-          <CheckoutSection
-            courses={COURSES}
-            locale={locale}
-            currency={currency}
-            learner={learner}
-            onSetCart={handleSetCart}
-            onToggleCart={handleToggleCart}
-            onCompleteEnrollment={handleCompleteEnrollment}
-            onNotify={notify}
-          />
-        )}
+          {activeTab === 'certificate' && (
+            <CertificateModal
+              courses={COURSES}
+              locale={locale}
+              learner={learner}
+              selectedCourseId={certCourseId}
+              initialVerifyQuery={initialVerifyQuery}
+              onSelectCourseId={setCertCourseId}
+              onUpdateStudentName={(name) => {
+                hasHydratedIdbRef.current = true;
+                setLearner((prev) => ({ ...prev, studentName: name }));
+              }}
+              onNotify={notify}
+            />
+          )}
+
+          {activeTab === 'checkout' && (
+            <CheckoutModal
+              courses={COURSES}
+              locale={locale}
+              currency={currency}
+              learner={learner}
+              onSetCart={handleSetCart}
+              onToggleCart={handleToggleCart}
+              onCompleteEnrollment={handleCompleteEnrollment}
+              onNotify={notify}
+            />
+          )}
+        </Suspense>
       </main>
 
       {/* Footer */}
-      <footer className="no-print border-t border-[var(--sol-border)] bg-[var(--sol-surface)]/70">
+      <footer className="no-print border-t border-[var(--sol-border)] bg-[var(--sol-surface)]">
         <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-3 px-4 py-5 text-xs text-[var(--sol-text-muted)] sm:flex-row sm:px-6">
           <div className="flex items-center gap-2.5 text-center sm:text-left">
             <SolarisMark className="h-6 w-6 shrink-0" />
@@ -450,7 +467,7 @@ export function App() {
           <button
             type="button"
             onClick={handleResetAllProgress}
-            className="inline-flex items-center gap-1.5 rounded-lg border border-[var(--sol-border)] px-3 py-1.5 font-code text-[11px] font-semibold text-[var(--sol-text-secondary)] transition-colors hover:border-rose-500/50 hover:text-rose-500"
+            className="inline-flex items-center gap-1.5 rounded-lg border border-[var(--sol-border-strong)] px-3 py-1.5 font-code text-[11px] font-semibold text-[var(--sol-text-secondary)] transition-colors hover:border-rose-500/50 hover:text-rose-600"
           >
             <RotateIcon className="h-3.5 w-3.5" />
             <span>{copy.footer.resetProgress}</span>
@@ -463,7 +480,7 @@ export function App() {
         <div
           role="status"
           aria-live="polite"
-          className="no-print fixed bottom-5 right-4 z-50 flex max-w-sm items-center gap-2 rounded-xl border border-emerald-500/40 bg-slate-950/95 px-4 py-3 text-xs font-semibold text-emerald-300 shadow-2xl backdrop-blur-md"
+          className="no-print fixed bottom-5 right-4 z-50 flex max-w-sm items-center gap-2 rounded-xl border border-emerald-600/40 bg-slate-900/95 px-4 py-3 text-xs font-semibold text-emerald-300 shadow-2xl backdrop-blur-md"
         >
           <CheckCircleIcon className="h-4 w-4 shrink-0 text-emerald-400" />
           <span>{toast}</span>

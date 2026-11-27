@@ -18,7 +18,7 @@ import {
   TrashIcon,
 } from './Icons';
 
-interface CheckoutSectionProps {
+export interface CheckoutModalProps {
   courses: Course[];
   locale: Locale;
   currency: Currency;
@@ -29,7 +29,7 @@ interface CheckoutSectionProps {
   onNotify: (message: string) => void;
 }
 
-export function CheckoutSection({
+export function CheckoutModal({
   courses,
   locale,
   currency,
@@ -38,7 +38,7 @@ export function CheckoutSection({
   onToggleCart,
   onCompleteEnrollment,
   onNotify,
-}: CheckoutSectionProps) {
+}: CheckoutModalProps) {
   const copy = tCopy(locale);
   const [voucherInput, setVoucherInput] = useState<string>('');
   const [appliedVoucher, setAppliedVoucher] = useState<string>('');
@@ -67,7 +67,9 @@ export function CheckoutSection({
 
   const transferMemo = useMemo(() => {
     const trackCodes = cartCourses.map((c) => c.code).join(' ');
-    return sanitizeVietQrMemo(`SOLARIS ${trackCodes || 'FELLOWSHIP'} ${learner.studentName.split(' ').pop() ?? ''}`);
+    return sanitizeVietQrMemo(
+      `SOLARIS ${trackCodes || 'FELLOWSHIP'} ${learner.studentName.split(' ').pop() ?? ''}`,
+    );
   }, [cartCourses, learner.studentName]);
 
   const vietQrPayload = useMemo(
@@ -143,10 +145,10 @@ export function CheckoutSection({
   return (
     <section className="mx-auto max-w-7xl px-4 py-8 sm:px-6">
       <div>
-        <span className="font-code text-xs font-bold tracking-widest text-indigo-600 dark:text-indigo-400">
+        <span className="font-code text-xs font-bold tracking-widest text-blue-700 dark:text-blue-400">
           {copy.checkout.sectionLabel}
         </span>
-        <h2 className="mt-1 text-2xl font-extrabold tracking-tight text-[var(--sol-text)] sm:text-3xl">
+        <h2 className="font-editorial mt-1 text-2xl font-semibold tracking-tight text-[var(--sol-text)] sm:text-4xl">
           {copy.checkout.sectionTitle}
         </h2>
         <p className="mt-1.5 max-w-3xl text-sm text-[var(--sol-text-secondary)]">
@@ -167,7 +169,7 @@ export function CheckoutSection({
               onSetCart(['dotnet-10', 'react-19', 'applied-rag']);
               setEnrollmentConfirmed(false);
             }}
-            className="inline-flex items-center gap-2 rounded-xl border border-indigo-500/40 bg-indigo-500/10 px-4 py-2 text-xs font-bold text-indigo-700 transition-colors hover:bg-indigo-600 hover:text-white dark:text-indigo-300 dark:hover:text-white"
+            className="inline-flex items-center gap-2 rounded-xl border border-blue-700/35 bg-blue-700/8 px-4 py-2 text-xs font-bold text-blue-700 transition-colors hover:bg-blue-700 hover:text-white dark:border-blue-400/35 dark:bg-blue-500/15 dark:text-blue-300 dark:hover:bg-blue-600 dark:hover:text-white"
           >
             <span>{copy.checkout.bundleTrio}</span>
           </button>
@@ -179,7 +181,7 @@ export function CheckoutSection({
               onSetCart(courses.map((c) => c.id));
               setEnrollmentConfirmed(false);
             }}
-            className="inline-flex items-center gap-2 rounded-xl border border-emerald-500/40 bg-emerald-500/10 px-4 py-2 text-xs font-bold text-emerald-700 transition-colors hover:bg-emerald-600 hover:text-white dark:text-emerald-300 dark:hover:text-white"
+            className="inline-flex items-center gap-2 rounded-xl border border-emerald-600/40 bg-emerald-600/10 px-4 py-2 text-xs font-bold text-emerald-700 transition-colors hover:bg-emerald-600 hover:text-white dark:text-emerald-300 dark:hover:text-white"
           >
             <span>{copy.checkout.bundleAll}</span>
           </button>
@@ -189,9 +191,9 @@ export function CheckoutSection({
       {enrollmentConfirmed && (
         <div
           data-testid="enrollment-confirmed-banner"
-          className="mt-5 flex items-center gap-2.5 rounded-2xl border border-emerald-500/40 bg-emerald-500/12 p-4 text-sm font-bold text-emerald-800 dark:text-emerald-200"
+          className="mt-5 flex items-center gap-2.5 rounded-2xl border border-emerald-600/40 bg-emerald-600/12 p-4 text-sm font-bold text-emerald-800 dark:text-emerald-200"
         >
-          <CheckCircleIcon className="h-5 w-5 shrink-0 text-emerald-500" />
+          <CheckCircleIcon className="h-5 w-5 shrink-0 text-emerald-600" />
           <span>{copy.checkout.enrollmentDone}</span>
         </div>
       )}
@@ -202,13 +204,13 @@ export function CheckoutSection({
           <div className="sol-card rounded-2xl p-5">
             <div className="flex items-center justify-between border-b border-[var(--sol-border)] pb-3">
               <h3 className="flex items-center gap-2 text-sm font-extrabold text-[var(--sol-text)]">
-                <CartIcon className="h-4 w-4 text-indigo-500" />
+                <CartIcon className="h-4 w-4 text-blue-700 dark:text-blue-400" />
                 <span>
                   {copy.checkout.cartHeading} ({cartCourses.length})
                 </span>
               </h3>
               {pricing.bundleRate > 0 && (
-                <span className="rounded-full border border-emerald-500/40 bg-emerald-500/12 px-2.5 py-0.5 font-code text-[11px] font-bold text-emerald-700 dark:text-emerald-300">
+                <span className="rounded-full border border-emerald-600/40 bg-emerald-600/10 px-2.5 py-0.5 font-code text-[11px] font-bold text-emerald-700 dark:text-emerald-300">
                   -{Math.round(pricing.bundleRate * 100)}% BUNDLE TIER
                 </span>
               )}
@@ -233,7 +235,7 @@ export function CheckoutSection({
                         >
                           {course.code}
                         </span>
-                        <span className="truncate text-sm font-bold text-[var(--sol-text)]">
+                        <span className="font-editorial truncate text-base font-semibold text-[var(--sol-text)]">
                           {course.title[locale]}
                         </span>
                       </div>
@@ -260,7 +262,6 @@ export function CheckoutSection({
               </div>
             )}
 
-            {/* Quick Add Remaining Courses */}
             {remainingCourses.length > 0 && (
               <div className="mt-4 border-t border-[var(--sol-border)] pt-4">
                 <div className="font-code text-[10px] font-bold uppercase tracking-wider text-[var(--sol-text-muted)]">
@@ -275,9 +276,9 @@ export function CheckoutSection({
                         onToggleCart(course.id);
                         setEnrollmentConfirmed(false);
                       }}
-                      className="inline-flex items-center gap-1.5 rounded-lg border border-[var(--sol-border-strong)] bg-[var(--sol-elevated)] px-2.5 py-1.5 text-xs font-semibold text-[var(--sol-text)] transition-colors hover:border-indigo-500 hover:text-indigo-600 dark:hover:text-indigo-300"
+                      className="inline-flex items-center gap-1.5 rounded-lg border border-[var(--sol-border-strong)] bg-[var(--sol-elevated)] px-2.5 py-1.5 text-xs font-semibold text-[var(--sol-text)] transition-colors hover:border-blue-700 hover:text-blue-700 dark:hover:text-blue-300"
                     >
-                      <span className="font-code text-[10px] font-bold text-indigo-600 dark:text-indigo-400">
+                      <span className="font-code text-[10px] font-bold text-blue-700 dark:text-blue-400">
                         +{course.code}
                       </span>
                       <span>{course.title[locale]}</span>
@@ -308,13 +309,13 @@ export function CheckoutSection({
                   setVoucherError(false);
                 }}
                 placeholder={copy.checkout.voucherPlaceholder}
-                className="min-w-0 flex-1 rounded-xl border border-[var(--sol-border-strong)] bg-[var(--sol-elevated)] px-3.5 py-2.5 font-code text-xs uppercase text-[var(--sol-text)] placeholder:normal-case placeholder:text-[var(--sol-text-muted)] focus:border-indigo-500 focus:outline-none"
+                className="min-w-0 flex-1 rounded-xl border border-[var(--sol-border-strong)] bg-[var(--sol-elevated)] px-3.5 py-2.5 font-code text-xs uppercase text-[var(--sol-text)] placeholder:normal-case placeholder:text-[var(--sol-text-muted)] focus:border-blue-700 focus:outline-none"
               />
               <button
                 type="button"
                 data-testid="apply-voucher-btn"
                 onClick={() => handleApplyVoucher()}
-                className="shrink-0 rounded-xl bg-indigo-600 px-4 py-2.5 text-xs font-bold text-white hover:bg-indigo-500"
+                className="shrink-0 rounded-xl bg-blue-700 px-4 py-2.5 text-xs font-bold text-white hover:bg-blue-800 dark:bg-blue-600 dark:hover:bg-blue-500"
               >
                 {copy.checkout.applyVoucher}
               </button>
@@ -325,21 +326,21 @@ export function CheckoutSection({
                 type="button"
                 data-testid="chip-solaris20"
                 onClick={() => handleApplyVoucher('SOLARIS20')}
-                className="rounded-md border border-amber-500/40 bg-amber-500/10 px-2.5 py-1 font-code text-[11px] font-bold text-amber-700 hover:bg-amber-500/20 dark:text-amber-300"
+                className="rounded-md border border-amber-500/40 bg-amber-500/10 px-2.5 py-1 font-code text-[11px] font-bold text-amber-800 hover:bg-amber-500/20 dark:text-amber-300"
               >
                 SOLARIS20 (-20%)
               </button>
               <button
                 type="button"
                 onClick={() => handleApplyVoucher('ARCHITECT10')}
-                className="rounded-md border border-indigo-500/35 bg-indigo-500/10 px-2.5 py-1 font-code text-[11px] font-bold text-indigo-700 hover:bg-indigo-500/20 dark:text-indigo-300"
+                className="rounded-md border border-blue-700/35 bg-blue-700/10 px-2.5 py-1 font-code text-[11px] font-bold text-blue-700 hover:bg-blue-700/20 dark:text-blue-300"
               >
                 ARCHITECT10 (-10%)
               </button>
               {pricing.voucherCode && (
                 <span
                   data-testid="voucher-applied-badge"
-                  className="inline-flex items-center gap-1 font-code text-[11px] font-bold text-emerald-600 dark:text-emerald-400"
+                  className="inline-flex items-center gap-1 font-code text-[11px] font-bold text-emerald-700 dark:text-emerald-400"
                 >
                   <CheckCircleIcon className="h-3.5 w-3.5" />
                   {copy.checkout.voucherApplied}: {pricing.voucherCode}
@@ -353,7 +354,6 @@ export function CheckoutSection({
               </p>
             )}
 
-            {/* Pricing Ledger */}
             <div className="mt-5 space-y-2.5 border-t border-[var(--sol-border)] pt-4 text-sm">
               <div className="flex justify-between text-[var(--sol-text-secondary)]">
                 <span>{copy.checkout.subtotal}</span>
@@ -387,14 +387,14 @@ export function CheckoutSection({
                     {copy.checkout.finalTotal}
                   </span>
                   {pricing.savingsPct > 0 && (
-                    <span className="ml-2 rounded-full bg-emerald-500/15 px-2 py-0.5 font-code text-[11px] font-bold text-emerald-700 dark:text-emerald-300">
+                    <span className="ml-2 rounded-full bg-emerald-600/15 px-2 py-0.5 font-code text-[11px] font-bold text-emerald-700 dark:text-emerald-300">
                       SAVE {pricing.savingsPct}%
                     </span>
                   )}
                 </div>
                 <span
                   data-testid="checkout-final-total"
-                  className="font-code text-xl font-extrabold text-indigo-600 dark:text-indigo-400"
+                  className="font-code text-xl font-extrabold text-blue-700 dark:text-blue-400"
                 >
                   {formatMoney(pricing.finalTotalVnd, currency)}
                 </span>
@@ -406,20 +406,19 @@ export function CheckoutSection({
         {/* Right: Real EMVCo VietQR Techcombank Panel */}
         <div className="lg:col-span-5">
           <div className="sol-card overflow-hidden rounded-2xl">
-            <div className="border-b border-[var(--sol-border)] bg-gradient-to-r from-indigo-600/15 via-emerald-500/10 to-transparent px-5 py-4">
+            <div className="border-b border-[var(--sol-border)] bg-gradient-to-r from-blue-700/12 via-emerald-600/8 to-transparent px-5 py-4">
               <div className="flex items-center justify-between gap-2">
                 <h3 className="flex items-center gap-2 text-sm font-extrabold text-[var(--sol-text)]">
-                  <ShieldCheckIcon className="h-4 w-4 text-emerald-500" />
+                  <ShieldCheckIcon className="h-4 w-4 text-emerald-600" />
                   <span>{copy.checkout.vietQrTitle}</span>
                 </h3>
-                <span className="rounded bg-slate-950 px-2 py-0.5 font-code text-[10px] font-bold text-emerald-400">
+                <span className="rounded bg-slate-900 px-2 py-0.5 font-code text-[10px] font-bold text-emerald-400">
                   BIN {TECHCOMBANK_CONFIG.bankBin}
                 </span>
               </div>
             </div>
 
             <div className="p-5">
-              {/* Real Vector QR Matrix */}
               <div className="mx-auto flex w-56 flex-col items-center rounded-2xl border border-slate-200 bg-white p-4 shadow-inner">
                 <svg
                   data-testid="vietqr-svg"
@@ -436,7 +435,6 @@ export function CheckoutSection({
                 </div>
               </div>
 
-              {/* Bank Metadata */}
               <div className="mt-5 space-y-2.5 rounded-xl border border-[var(--sol-border)] bg-[var(--sol-elevated)] p-3.5 text-xs">
                 <div className="flex items-center justify-between gap-2">
                   <span className="text-[var(--sol-text-muted)]">{copy.checkout.bankLabel}</span>
@@ -453,9 +451,12 @@ export function CheckoutSection({
                     <button
                       type="button"
                       onClick={() =>
-                        void handleCopyText(TECHCOMBANK_CONFIG.accountNumber, copy.checkout.accountLabel)
+                        void handleCopyText(
+                          TECHCOMBANK_CONFIG.accountNumber,
+                          copy.checkout.accountLabel,
+                        )
                       }
-                      className="rounded border border-[var(--sol-border-strong)] px-1.5 py-0.5 font-code text-[10px] font-semibold text-indigo-600 hover:bg-indigo-600 hover:text-white dark:text-indigo-300"
+                      className="rounded border border-[var(--sol-border-strong)] px-1.5 py-0.5 font-code text-[10px] font-semibold text-blue-700 hover:bg-blue-700 hover:text-white dark:text-blue-300"
                     >
                       <CopyIcon className="inline h-3 w-3" />
                     </button>
@@ -476,7 +477,7 @@ export function CheckoutSection({
                     <button
                       type="button"
                       onClick={() => void handleCopyText(transferMemo, copy.checkout.memoLabel)}
-                      className="shrink-0 rounded border border-[var(--sol-border-strong)] px-1.5 py-0.5 font-code text-[10px] font-semibold text-indigo-600 hover:bg-indigo-600 hover:text-white dark:text-indigo-300"
+                      className="shrink-0 rounded border border-[var(--sol-border-strong)] px-1.5 py-0.5 font-code text-[10px] font-semibold text-blue-700 hover:bg-blue-700 hover:text-white dark:text-blue-300"
                     >
                       <CopyIcon className="inline h-3 w-3" />
                     </button>
@@ -484,14 +485,13 @@ export function CheckoutSection({
                 </div>
               </div>
 
-              {/* Settlement Actions */}
               <div className="mt-4 space-y-2.5">
                 <button
                   type="button"
                   data-testid="confirm-enrollment-btn"
                   disabled={cartCourses.length === 0}
                   onClick={handleConfirmEnrollment}
-                  className="flex w-full items-center justify-center gap-2 rounded-xl bg-emerald-600 px-4 py-3 text-xs font-extrabold text-white shadow-lg shadow-emerald-600/25 transition-all hover:bg-emerald-500 disabled:cursor-not-allowed disabled:opacity-45"
+                  className="flex w-full items-center justify-center gap-2 rounded-xl bg-emerald-600 px-4 py-3 text-xs font-extrabold text-white shadow-md shadow-emerald-600/20 transition-all hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-45"
                 >
                   <CheckCircleIcon className="h-4 w-4" />
                   <span>{copy.checkout.confirmEnrollment}</span>
@@ -501,7 +501,7 @@ export function CheckoutSection({
                   type="button"
                   disabled={cartCourses.length === 0}
                   onClick={handleExportReceiptCsv}
-                  className="flex w-full items-center justify-center gap-2 rounded-xl border border-[var(--sol-border-strong)] bg-[var(--sol-surface)] px-4 py-2.5 font-code text-xs font-bold text-[var(--sol-text)] transition-colors hover:border-indigo-500/60 disabled:cursor-not-allowed disabled:opacity-45"
+                  className="flex w-full items-center justify-center gap-2 rounded-xl border border-[var(--sol-border-strong)] bg-[var(--sol-surface)] px-4 py-2.5 font-code text-xs font-bold text-[var(--sol-text)] transition-colors hover:border-blue-700/60 disabled:cursor-not-allowed disabled:opacity-45"
                 >
                   <DownloadIcon className="h-4 w-4" />
                   <span>{copy.checkout.exportReceiptCsv}</span>
@@ -514,3 +514,5 @@ export function CheckoutSection({
     </section>
   );
 }
+
+export default CheckoutModal;

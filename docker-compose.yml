@@ -1,0 +1,73 @@
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: solaris-web
+    ports:
+      - "8080:80"
+    depends_on:
+      api:
+        condition: service_healthy
+    restart: unless-stopped
+
+  api:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: solaris-api
+    ports:
+      - "8000:8000"
+    environment:
+      SOLARIS_CERT_SECRET: ${SOLARIS_CERT_SECRET:-solaris-academy-v2-hmac-signing-key-2026}
+      SOLARIS_ALLOWED_ORIGINS: http://localhost:8080,http://localhost:5173
+      DATABASE_URL: postgresql://solaris:solaris_dev@postgres:5432/solaris_lms
+      REDIS_URL: redis://redis:6379/0
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health', timeout=3)"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  postgres:
+    image: postgres:16-alpine
+    container_name: solaris-postgres
+    environment:
+      POSTGRES_USER: solaris
+      POSTGRES_PASSWORD: solaris_dev
+      POSTGRES_DB: solaris_lms
+    ports:
+      - "5432:5432"
+    volumes:
+      - solaris_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U solaris -d solaris_lms"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    container_name: solaris-redis
+    command: ["redis-server", "--appendonly", "yes"]
+    ports:
+      - "6379:6379"
+    volumes:
+      - solaris_redis:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+volumes:
+  solaris_pgdata:
+  solaris_redis:

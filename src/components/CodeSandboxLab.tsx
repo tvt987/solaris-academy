@@ -23,7 +23,7 @@ import {
   XCircleIcon,
 } from './Icons';
 
-interface SandboxSectionProps {
+export interface CodeSandboxLabProps {
   courses: Course[];
   challenges: CodingChallenge[];
   questions: QuizQuestion[];
@@ -42,7 +42,7 @@ function formatClock(totalSec: number): string {
   return `${m}:${s}`;
 }
 
-export function SandboxSection({
+export function CodeSandboxLab({
   courses,
   challenges,
   questions,
@@ -53,11 +53,10 @@ export function SandboxSection({
   onChallengePassed,
   onQuizCompleted,
   onJumpToCertificate,
-}: SandboxSectionProps) {
+}: CodeSandboxLabProps) {
   const copy = tCopy(locale);
   const [mode, setMode] = useState<'code' | 'quiz'>('code');
 
-  // Code Lab state
   const activeChallenge = useMemo(
     () => challenges.find((c) => c.id === activeChallengeId) ?? challenges[0]!,
     [challenges, activeChallengeId],
@@ -72,7 +71,6 @@ export function SandboxSection({
   const [gradeReport, setGradeReport] = useState<CodeGradeReport | null>(null);
   const [revealedHints, setRevealedHints] = useState<number>(0);
 
-  // Quiz state
   const [quizFilter, setQuizFilter] = useState<string>('all');
   const [selectedAnswers, setSelectedAnswers] = useState<Record<string, number>>({});
   const [quizReport, setQuizReport] = useState<QuizGradeReport | null>(null);
@@ -84,13 +82,11 @@ export function SandboxSection({
   const currentCode = codeDrafts[activeChallenge.id] ?? activeChallenge.starterCode;
   const lineCount = Math.max(12, currentCode.split('\n').length);
 
-  // Reset hint & report when switching challenges
   useEffect(() => {
     setGradeReport(null);
     setRevealedHints(0);
   }, [activeChallenge.id]);
 
-  // Quiz sprint timer
   useEffect(() => {
     if (mode !== 'quiz' || quizReport !== null) return;
     const timer = window.setInterval(() => {
@@ -161,10 +157,10 @@ export function SandboxSection({
       {/* Header + Mode Switcher */}
       <div className="flex flex-col justify-between gap-4 md:flex-row md:items-end">
         <div>
-          <span className="font-code text-xs font-bold tracking-widest text-indigo-600 dark:text-indigo-400">
+          <span className="font-code text-xs font-bold tracking-widest text-blue-700 dark:text-blue-400">
             {copy.sandbox.sectionLabel}
           </span>
-          <h2 className="mt-1 text-2xl font-extrabold tracking-tight text-[var(--sol-text)] sm:text-3xl">
+          <h2 className="font-editorial mt-1 text-2xl font-semibold tracking-tight text-[var(--sol-text)] sm:text-4xl">
             {copy.sandbox.sectionTitle}
           </h2>
         </div>
@@ -176,7 +172,7 @@ export function SandboxSection({
             onClick={() => setMode('code')}
             className={`flex-1 rounded-lg px-4 py-2 text-xs font-bold transition-all sm:flex-none ${
               mode === 'code'
-                ? 'bg-indigo-600 text-white shadow-sm'
+                ? 'bg-blue-700 text-white shadow-sm dark:bg-blue-600'
                 : 'text-[var(--sol-text-secondary)] hover:text-[var(--sol-text)]'
             }`}
           >
@@ -188,7 +184,7 @@ export function SandboxSection({
             onClick={() => setMode('quiz')}
             className={`flex-1 rounded-lg px-4 py-2 text-xs font-bold transition-all sm:flex-none ${
               mode === 'quiz'
-                ? 'bg-indigo-600 text-white shadow-sm'
+                ? 'bg-blue-700 text-white shadow-sm dark:bg-blue-600'
                 : 'text-[var(--sol-text-secondary)] hover:text-[var(--sol-text)]'
             }`}
           >
@@ -213,15 +209,15 @@ export function SandboxSection({
                   onClick={() => onSelectChallenge(ch.id)}
                   className={`flex items-center justify-between gap-2.5 rounded-xl border p-3 text-left transition-all ${
                     isSelected
-                      ? 'border-indigo-500 bg-indigo-600/10 ring-1 ring-indigo-500/40'
-                      : 'border-[var(--sol-border)] bg-[var(--sol-surface)] hover:border-indigo-500/40'
+                      ? 'border-blue-700 bg-blue-700/8 ring-1 ring-blue-700/35 dark:border-blue-400 dark:bg-blue-500/15'
+                      : 'border-[var(--sol-border)] bg-[var(--sol-surface)] hover:border-blue-700/40'
                   }`}
                 >
                   <div className="min-w-0">
                     <div className="flex items-center gap-1.5">
                       <span
                         className="rounded px-1.5 py-0.5 font-code text-[10px] font-bold text-white"
-                        style={{ backgroundColor: course?.accentHex ?? '#4f46e5' }}
+                        style={{ backgroundColor: course?.accentHex ?? '#1d4ed8' }}
                       >
                         {course?.code ?? 'LAB'}
                       </span>
@@ -234,7 +230,7 @@ export function SandboxSection({
                     </div>
                   </div>
                   {isSolved ? (
-                    <CheckCircleIcon className="h-5 w-5 shrink-0 text-emerald-500" />
+                    <CheckCircleIcon className="h-5 w-5 shrink-0 text-emerald-600" />
                   ) : (
                     <TerminalIcon className="h-4 w-4 shrink-0 text-[var(--sol-text-muted)]" />
                   )}
@@ -250,21 +246,21 @@ export function SandboxSection({
                 <div className="flex flex-wrap items-center gap-2">
                   <span
                     className="rounded-md px-2 py-0.5 font-code text-[11px] font-bold text-white"
-                    style={{ backgroundColor: activeCourse?.accentHex ?? '#4f46e5' }}
+                    style={{ backgroundColor: activeCourse?.accentHex ?? '#1d4ed8' }}
                   >
                     {activeCourse?.code ?? 'LAB'}
                   </span>
-                  <h3 className="text-lg font-extrabold text-[var(--sol-text)]">
+                  <h3 className="font-editorial text-xl font-semibold text-[var(--sol-text)]">
                     {activeChallenge.title[locale]}
                   </h3>
-                  <span className="rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2.5 py-0.5 font-code text-[10px] font-bold text-emerald-700 dark:text-emerald-300">
+                  <span className="rounded-full border border-emerald-600/30 bg-emerald-600/10 px-2.5 py-0.5 font-code text-[10px] font-bold text-emerald-700 dark:text-emerald-300">
                     AST Sandbox · 0 eval
                   </span>
                 </div>
                 <p className="mt-2 text-sm leading-relaxed text-[var(--sol-text-secondary)]">
                   {activeChallenge.prompt[locale]}
                 </p>
-                <div className="mt-2.5 inline-block max-w-full overflow-x-auto rounded-lg border border-[var(--sol-border)] bg-[var(--sol-elevated)] px-3 py-1 font-code text-xs text-indigo-700 dark:text-indigo-300">
+                <div className="mt-2.5 inline-block max-w-full overflow-x-auto rounded-lg border border-[var(--sol-border)] bg-[var(--sol-elevated)] px-3 py-1 font-code text-xs text-blue-800 dark:text-blue-300">
                   {activeChallenge.signature}
                 </div>
               </div>
@@ -292,7 +288,7 @@ export function SandboxSection({
                 <button
                   type="button"
                   onClick={handleLoadSolution}
-                  className="inline-flex items-center gap-1.5 rounded-xl border border-[var(--sol-border-strong)] bg-[var(--sol-surface)] px-3 py-2 text-xs font-bold text-[var(--sol-text-secondary)] hover:text-indigo-600 dark:hover:text-indigo-300"
+                  className="inline-flex items-center gap-1.5 rounded-xl border border-[var(--sol-border-strong)] bg-[var(--sol-surface)] px-3 py-2 text-xs font-bold text-[var(--sol-text-secondary)] hover:text-blue-700 dark:hover:text-blue-300"
                 >
                   <span>{copy.sandbox.loadSolution}</span>
                 </button>
@@ -300,7 +296,7 @@ export function SandboxSection({
                   type="button"
                   data-testid="run-tests-btn"
                   onClick={handleRunTests}
-                  className="inline-flex items-center gap-1.5 rounded-xl bg-emerald-600 px-4 py-2 text-xs font-bold text-white shadow-md shadow-emerald-600/25 transition-all hover:bg-emerald-500"
+                  className="inline-flex items-center gap-1.5 rounded-xl bg-emerald-600 px-4 py-2 text-xs font-bold text-white shadow-md shadow-emerald-600/20 transition-all hover:bg-emerald-700"
                 >
                   <PlayIcon className="h-3.5 w-3.5" />
                   <span>{copy.sandbox.runTests}</span>
@@ -328,13 +324,13 @@ export function SandboxSection({
           {/* Split Editor + Automated Assertions */}
           <div className="grid grid-cols-1 gap-5 lg:grid-cols-12">
             {/* Code Editor */}
-            <div className="overflow-hidden rounded-2xl border border-slate-800 bg-[#070b13] shadow-xl lg:col-span-7">
+            <div className="overflow-hidden rounded-2xl border border-slate-800 bg-[#0f172a] shadow-lg lg:col-span-7">
               <div className="flex items-center justify-between border-b border-slate-800 bg-slate-900/90 px-4 py-2.5">
                 <div className="flex items-center gap-2">
                   <span className="h-2.5 w-2.5 rounded-full bg-rose-500/80" />
                   <span className="h-2.5 w-2.5 rounded-full bg-amber-400/80" />
                   <span className="h-2.5 w-2.5 rounded-full bg-emerald-500/80" />
-                  <span className="ml-2 font-code text-[11px] font-semibold text-slate-400">
+                  <span className="ml-2 font-code text-[11px] font-semibold text-slate-300">
                     {activeChallenge.functionName}.js
                   </span>
                 </div>
@@ -346,7 +342,7 @@ export function SandboxSection({
               <div className="flex min-h-[340px] max-h-[460px] overflow-auto">
                 <div
                   aria-hidden="true"
-                  className="select-none border-r border-slate-800/80 bg-slate-950/60 px-3 py-4 text-right font-code text-xs leading-6 text-slate-600"
+                  className="select-none border-r border-slate-800/80 bg-slate-950/60 px-3 py-4 text-right font-code text-xs leading-6 text-slate-500"
                 >
                   {Array.from({ length: lineCount }, (_, idx) => (
                     <div key={idx}>{idx + 1}</div>
@@ -386,14 +382,14 @@ export function SandboxSection({
               <div className="flex-1 p-4">
                 {!gradeReport ? (
                   <div className="flex h-full min-h-[260px] flex-col items-center justify-center rounded-xl border border-dashed border-[var(--sol-border-strong)] p-6 text-center">
-                    <ShieldCheckIcon className="h-9 w-9 text-indigo-500/70" />
+                    <ShieldCheckIcon className="h-9 w-9 text-blue-700/75 dark:text-blue-400" />
                     <p className="mt-3 max-w-xs text-xs leading-relaxed text-[var(--sol-text-secondary)]">
                       {copy.sandbox.runPrompt}
                     </p>
                     <button
                       type="button"
                       onClick={handleRunTests}
-                      className="mt-4 inline-flex items-center gap-1.5 rounded-xl bg-indigo-600 px-4 py-2 text-xs font-bold text-white hover:bg-indigo-500"
+                      className="mt-4 inline-flex items-center gap-1.5 rounded-xl bg-blue-700 px-4 py-2 text-xs font-bold text-white hover:bg-blue-800 dark:bg-blue-600 dark:hover:bg-blue-500"
                     >
                       <PlayIcon className="h-3.5 w-3.5" />
                       <span>{copy.sandbox.runTests}</span>
@@ -401,14 +397,13 @@ export function SandboxSection({
                   </div>
                 ) : (
                   <div className="space-y-3">
-                    {/* Summary Banner */}
                     <div
                       data-testid="grade-banner"
                       className={`rounded-xl border p-3.5 ${
                         gradeReport.securityBlocked
                           ? 'border-rose-500/40 bg-rose-500/10 text-rose-700 dark:text-rose-300'
                           : gradeReport.passedAll
-                            ? 'border-emerald-500/40 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300'
+                            ? 'border-emerald-600/40 bg-emerald-600/10 text-emerald-800 dark:text-emerald-300'
                             : 'border-amber-500/40 bg-amber-500/10 text-amber-800 dark:text-amber-300'
                       }`}
                     >
@@ -444,7 +439,7 @@ export function SandboxSection({
                         <button
                           type="button"
                           onClick={() => onJumpToCertificate(activeChallenge.courseId)}
-                          className="mt-3 inline-flex items-center gap-1.5 rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-bold text-white hover:bg-emerald-500"
+                          className="mt-3 inline-flex items-center gap-1.5 rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-bold text-white hover:bg-emerald-700"
                         >
                           <AwardIcon className="h-3.5 w-3.5" />
                           <span>{copy.sandbox.jumpToCert}</span>
@@ -452,21 +447,20 @@ export function SandboxSection({
                       )}
                     </div>
 
-                    {/* Individual Assertions */}
                     <div className="space-y-2.5">
                       {gradeReport.results.map((res, idx) => (
                         <div
                           key={res.id}
                           className={`rounded-xl border p-3 ${
                             res.passed
-                              ? 'border-emerald-500/30 bg-emerald-500/5'
+                              ? 'border-emerald-600/30 bg-emerald-600/5'
                               : 'border-rose-500/30 bg-rose-500/5'
                           }`}
                         >
                           <div className="flex items-center justify-between gap-2">
                             <div className="flex items-center gap-2">
                               {res.passed ? (
-                                <CheckCircleIcon className="h-4 w-4 shrink-0 text-emerald-500" />
+                                <CheckCircleIcon className="h-4 w-4 shrink-0 text-emerald-600" />
                               ) : (
                                 <XCircleIcon className="h-4 w-4 shrink-0 text-rose-500" />
                               )}
@@ -512,9 +506,7 @@ export function SandboxSection({
           </div>
         </div>
       ) : (
-        /* Timed Architecture Quiz Mode */
         <div className="mt-6 space-y-5">
-          {/* Quiz Control Strip */}
           <div className="sol-card flex flex-col justify-between gap-3 rounded-2xl p-4 sm:flex-row sm:items-center">
             <div className="flex flex-wrap items-center gap-1.5">
               <button
@@ -525,7 +517,7 @@ export function SandboxSection({
                 }}
                 className={`rounded-full px-3 py-1 text-xs font-semibold transition-colors ${
                   quizFilter === 'all'
-                    ? 'bg-indigo-600 text-white'
+                    ? 'bg-blue-700 text-white dark:bg-blue-600'
                     : 'bg-[var(--sol-elevated)] text-[var(--sol-text-secondary)] hover:text-[var(--sol-text)]'
                 }`}
               >
@@ -541,7 +533,7 @@ export function SandboxSection({
                   }}
                   className={`rounded-full px-3 py-1 font-code text-[11px] font-semibold transition-colors ${
                     quizFilter === c.id
-                      ? 'bg-indigo-600 text-white'
+                      ? 'bg-blue-700 text-white dark:bg-blue-600'
                       : 'bg-[var(--sol-elevated)] text-[var(--sol-text-secondary)] hover:text-[var(--sol-text)]'
                   }`}
                 >
@@ -552,9 +544,9 @@ export function SandboxSection({
 
             <div className="flex items-center gap-2">
               <div className="inline-flex items-center gap-1.5 rounded-xl border border-[var(--sol-border)] bg-[var(--sol-elevated)] px-3 py-1.5 font-code text-xs font-bold text-[var(--sol-text)]">
-                <ClockIcon className="h-3.5 w-3.5 text-indigo-500" />
+                <ClockIcon className="h-3.5 w-3.5 text-blue-700 dark:text-blue-400" />
                 <span>{copy.sandbox.quizTimerLabel}:</span>
-                <span className="text-indigo-600 dark:text-indigo-400">{formatClock(elapsedSec)}</span>
+                <span className="text-blue-700 dark:text-blue-400">{formatClock(elapsedSec)}</span>
               </div>
               <button
                 type="button"
@@ -567,13 +559,12 @@ export function SandboxSection({
             </div>
           </div>
 
-          {/* Quiz Result Summary Banner */}
           {quizReport && (
             <div
               data-testid="quiz-report-banner"
               className={`rounded-2xl border p-5 ${
                 quizReport.passed
-                  ? 'border-emerald-500/40 bg-emerald-500/10'
+                  ? 'border-emerald-600/40 bg-emerald-600/10'
                   : 'border-amber-500/40 bg-amber-500/10'
               }`}
             >
@@ -591,14 +582,13 @@ export function SandboxSection({
                     </span>
                   </div>
                 </div>
-                <span className="inline-flex items-center gap-1.5 rounded-full bg-indigo-600 px-3.5 py-1.5 font-code text-xs font-bold text-white">
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-blue-700 px-3.5 py-1.5 font-code text-xs font-bold text-white">
                   <BoltIcon className="h-3.5 w-3.5 text-amber-300" />+{quizReport.xpAwarded} XP
                 </span>
               </div>
             </div>
           )}
 
-          {/* Question Cards */}
           <div className="space-y-4">
             {filteredQuestions.map((q, qIdx) => {
               const picked = selectedAnswers[q.id];
@@ -607,7 +597,7 @@ export function SandboxSection({
               return (
                 <div key={q.id} className="sol-card rounded-2xl p-5">
                   <div className="flex flex-wrap items-center gap-2">
-                    <span className="rounded-md bg-indigo-600/15 px-2 py-0.5 font-code text-xs font-bold text-indigo-700 dark:text-indigo-300">
+                    <span className="rounded-md bg-blue-700/12 px-2 py-0.5 font-code text-xs font-bold text-blue-700 dark:text-blue-300">
                       Q{qIdx + 1}
                     </span>
                     <span className="rounded-md border border-[var(--sol-border)] bg-[var(--sol-elevated)] px-2 py-0.5 font-code text-[10px] font-semibold text-[var(--sol-text-muted)]">
@@ -623,18 +613,18 @@ export function SandboxSection({
                       const isPicked = picked === optIdx;
                       const isCorrectOpt = optIdx === q.correctIndex;
                       let stateStyle =
-                        'border-[var(--sol-border)] bg-[var(--sol-elevated)]/60 hover:border-indigo-500/50';
+                        'border-[var(--sol-border)] bg-[var(--sol-elevated)]/60 hover:border-blue-700/50';
                       if (quizReport) {
                         if (isCorrectOpt) {
                           stateStyle =
-                            'border-emerald-500 bg-emerald-500/12 text-emerald-900 dark:text-emerald-200';
+                            'border-emerald-600 bg-emerald-600/12 text-emerald-900 dark:text-emerald-200';
                         } else if (isPicked && !isCorrectOpt) {
                           stateStyle =
                             'border-rose-500 bg-rose-500/12 text-rose-900 dark:text-rose-200';
                         }
                       } else if (isPicked) {
                         stateStyle =
-                          'border-indigo-500 bg-indigo-600/12 ring-1 ring-indigo-500/40';
+                          'border-blue-700 bg-blue-700/10 ring-1 ring-blue-700/35';
                       }
 
                       return (
@@ -657,8 +647,8 @@ export function SandboxSection({
                   </div>
 
                   {breakdown && (
-                    <div className="mt-3.5 rounded-xl border border-indigo-500/25 bg-indigo-500/8 p-3 text-xs leading-relaxed text-[var(--sol-text-secondary)]">
-                      <span className="font-code font-bold text-indigo-600 dark:text-indigo-300">
+                    <div className="mt-3.5 rounded-xl border border-blue-700/25 bg-blue-700/6 p-3 text-xs leading-relaxed text-[var(--sol-text-secondary)]">
+                      <span className="font-code font-bold text-blue-700 dark:text-blue-300">
                         {copy.sandbox.quizExplanation}:{' '}
                       </span>
                       {q.explanation[locale]}
@@ -675,7 +665,7 @@ export function SandboxSection({
               data-testid="submit-quiz-btn"
               onClick={handleGradeQuiz}
               disabled={quizReport !== null}
-              className="inline-flex items-center gap-2 rounded-xl bg-indigo-600 px-6 py-3 text-sm font-bold text-white shadow-lg shadow-indigo-600/25 transition-all hover:bg-indigo-500 disabled:opacity-50"
+              className="inline-flex items-center gap-2 rounded-xl bg-blue-700 px-6 py-3 text-sm font-bold text-white shadow-lg shadow-blue-700/20 transition-all hover:bg-blue-800 disabled:opacity-50 dark:bg-blue-600 dark:hover:bg-blue-500"
             >
               <CheckCircleIcon className="h-4 w-4" />
               <span>{copy.sandbox.quizSubmit}</span>
@@ -686,3 +676,5 @@ export function SandboxSection({
     </section>
   );
 }
+
+export default CodeSandboxLab;

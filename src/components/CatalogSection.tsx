@@ -48,9 +48,9 @@ function triggerFileDownload(filename: string, content: string, mimeType: string
 }
 
 const DIFFICULTY_STYLES: Record<Course['difficulty'], string> = {
-  intermediate: 'border-sky-500/30 bg-sky-500/10 text-sky-700 dark:text-sky-300',
-  advanced: 'border-indigo-500/30 bg-indigo-500/10 text-indigo-700 dark:text-indigo-300',
-  architect: 'border-amber-500/35 bg-amber-500/10 text-amber-700 dark:text-amber-300',
+  intermediate: 'border-sky-600/30 bg-sky-600/10 text-sky-700 dark:text-sky-300',
+  advanced: 'border-blue-700/30 bg-blue-700/10 text-blue-700 dark:text-blue-300',
+  architect: 'border-amber-600/35 bg-amber-500/10 text-amber-800 dark:text-amber-300',
 };
 
 const DIFFICULTY_LABEL: Record<Course['difficulty'], { en: string; vi: string }> = {
@@ -60,10 +60,10 @@ const DIFFICULTY_LABEL: Record<Course['difficulty'], { en: string; vi: string }>
 };
 
 const LESSON_TYPE_STYLE = {
-  concept: 'bg-slate-500/15 text-slate-600 dark:text-slate-300',
-  lab: 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-300',
-  architecture: 'bg-indigo-500/15 text-indigo-700 dark:text-indigo-300',
-  quiz: 'bg-amber-500/15 text-amber-700 dark:text-amber-300',
+  concept: 'bg-slate-500/12 text-slate-700 dark:text-slate-300',
+  lab: 'bg-emerald-600/12 text-emerald-700 dark:text-emerald-300',
+  architecture: 'bg-blue-700/12 text-blue-700 dark:text-blue-300',
+  quiz: 'bg-amber-500/15 text-amber-800 dark:text-amber-300',
 } as const;
 
 export function CatalogSection({
@@ -145,10 +145,10 @@ export function CatalogSection({
       {/* Section Header */}
       <div className="flex flex-col justify-between gap-4 md:flex-row md:items-end">
         <div>
-          <span className="font-code text-xs font-bold tracking-widest text-indigo-600 dark:text-indigo-400">
+          <span className="font-code text-xs font-bold tracking-widest text-blue-700 dark:text-blue-400">
             {copy.catalog.sectionLabel}
           </span>
-          <h2 className="mt-1 text-2xl font-extrabold tracking-tight text-[var(--sol-text)] sm:text-3xl">
+          <h2 className="font-editorial mt-1 text-2xl font-semibold tracking-tight text-[var(--sol-text)] sm:text-4xl">
             {copy.catalog.sectionTitle}
           </h2>
           <p className="mt-1.5 max-w-2xl text-sm text-[var(--sol-text-secondary)]">
@@ -165,7 +165,7 @@ export function CatalogSection({
             onChange={(e) => setSearch(e.target.value)}
             placeholder={copy.catalog.searchPlaceholder}
             aria-label={copy.catalog.searchPlaceholder}
-            className="w-full rounded-xl border border-[var(--sol-border-strong)] bg-[var(--sol-surface)] py-2.5 pl-9 pr-3 text-sm text-[var(--sol-text)] placeholder:text-[var(--sol-text-muted)] focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+            className="w-full rounded-xl border border-[var(--sol-border-strong)] bg-[var(--sol-surface)] py-2.5 pl-9 pr-3 text-sm text-[var(--sol-text)] placeholder:text-[var(--sol-text-muted)] focus:border-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-700/15"
           />
         </div>
       </div>
@@ -181,8 +181,8 @@ export function CatalogSection({
               onClick={() => setCategory(f.id)}
               className={`rounded-full px-3.5 py-1.5 text-xs font-semibold transition-all ${
                 active
-                  ? 'bg-indigo-600 text-white shadow-sm shadow-indigo-600/25'
-                  : 'border border-[var(--sol-border)] bg-[var(--sol-surface)] text-[var(--sol-text-secondary)] hover:border-indigo-500/40 hover:text-[var(--sol-text)]'
+                  ? 'bg-blue-700 text-white shadow-sm shadow-blue-700/20 dark:bg-blue-600'
+                  : 'border border-[var(--sol-border-strong)] bg-[var(--sol-surface)] text-[var(--sol-text-secondary)] hover:border-blue-700/50 hover:text-[var(--sol-text)]'
               }`}
             >
               {f.label}
@@ -207,16 +207,16 @@ export function CatalogSection({
             <article
               key={course.id}
               data-course-id={course.id}
-              className={`sol-card group relative flex flex-col overflow-hidden rounded-2xl transition-all duration-200 hover:-translate-y-0.5 hover:shadow-xl hover:shadow-slate-950/10 dark:hover:shadow-black/40 ${
-                isExpanded ? 'ring-2 ring-indigo-500' : ''
+              className={`sol-card group relative flex flex-col overflow-hidden rounded-2xl transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg ${
+                isExpanded ? 'ring-2 ring-blue-700 dark:ring-blue-500' : ''
               }`}
             >
-              {/* Top Accent Strip */}
+              {/* Top Academic Accent Strip */}
               <div
                 aria-hidden="true"
                 className="h-1.5 w-full"
                 style={{
-                  background: `linear-gradient(90deg, ${course.accentHex}, #10b981)`,
+                  background: `linear-gradient(90deg, ${course.accentHex}, #059669)`,
                 }}
               />
 
@@ -242,7 +242,7 @@ export function CatalogSection({
                         </span>
                       </div>
                       <div className="mt-0.5 flex items-center gap-2 text-[11px] text-[var(--sol-text-muted)]">
-                        <span className="inline-flex items-center gap-0.5 font-semibold text-amber-500">
+                        <span className="inline-flex items-center gap-0.5 font-semibold text-amber-600 dark:text-amber-400">
                           <StarIcon className="h-3 w-3" />
                           {course.rating.toFixed(2)}
                         </span>
@@ -256,13 +256,13 @@ export function CatalogSection({
 
                   <div className="flex flex-col items-end gap-1">
                     {isEnrolled && (
-                      <span className="inline-flex items-center gap-1 rounded-full border border-emerald-500/35 bg-emerald-500/12 px-2 py-0.5 font-code text-[10px] font-bold text-emerald-700 dark:text-emerald-300">
+                      <span className="inline-flex items-center gap-1 rounded-full border border-emerald-600/35 bg-emerald-600/10 px-2 py-0.5 font-code text-[10px] font-bold text-emerald-700 dark:text-emerald-300">
                         <CheckIcon className="h-3 w-3" />
                         {copy.catalog.enrolledBadge}
                       </span>
                     )}
                     {stats.certificateEligible && (
-                      <span className="inline-flex items-center gap-1 rounded-full border border-amber-500/35 bg-amber-500/12 px-2 py-0.5 font-code text-[10px] font-bold text-amber-700 dark:text-amber-300">
+                      <span className="inline-flex items-center gap-1 rounded-full border border-amber-500/35 bg-amber-500/12 px-2 py-0.5 font-code text-[10px] font-bold text-amber-800 dark:text-amber-300">
                         <AwardIcon className="h-3 w-3" />
                         {copy.catalog.certReady}
                       </span>
@@ -270,8 +270,8 @@ export function CatalogSection({
                   </div>
                 </div>
 
-                {/* Title & Subtitle */}
-                <h3 className="mt-4 text-lg font-extrabold tracking-tight text-[var(--sol-text)]">
+                {/* Newsreader Serif Course Title & Crisp Subtitle */}
+                <h3 className="font-editorial mt-4 text-xl font-semibold tracking-tight text-[var(--sol-text)]">
                   {course.title[locale]}
                 </h3>
                 <p className="mt-1.5 line-clamp-2 text-xs leading-relaxed text-[var(--sol-text-secondary)]">
@@ -294,8 +294,8 @@ export function CatalogSection({
                 <div className="mt-4">
                   <div className="mb-1 flex items-center justify-between font-code text-[11px]">
                     <span className="text-[var(--sol-text-muted)]">
-                      {stats.completedCount}/{stats.totalCount} {copy.catalog.lessonsLabel} · {course.durationHours}{' '}
-                      {copy.catalog.hoursLabel}
+                      {stats.completedCount}/{stats.totalCount} {copy.catalog.lessonsLabel} ·{' '}
+                      {course.durationHours} {copy.catalog.hoursLabel}
                     </span>
                     <span className="font-bold text-[var(--sol-text)]">{stats.percent}%</span>
                   </div>
@@ -326,11 +326,15 @@ export function CatalogSection({
                     onClick={() => onToggleCart(course.id)}
                     className={`inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-bold transition-all ${
                       isInCart
-                        ? 'border border-emerald-500/40 bg-emerald-500/12 text-emerald-700 dark:text-emerald-300'
-                        : 'border border-[var(--sol-border-strong)] bg-[var(--sol-elevated)] text-[var(--sol-text)] hover:border-indigo-500 hover:text-indigo-600 dark:hover:text-indigo-300'
+                        ? 'border border-emerald-600/40 bg-emerald-600/10 text-emerald-700 dark:text-emerald-300'
+                        : 'border border-[var(--sol-border-strong)] bg-[var(--sol-elevated)] text-[var(--sol-text)] hover:border-blue-700 hover:text-blue-700 dark:hover:text-blue-300'
                     }`}
                   >
-                    {isInCart ? <CheckIcon className="h-3.5 w-3.5" /> : <CartIcon className="h-3.5 w-3.5" />}
+                    {isInCart ? (
+                      <CheckIcon className="h-3.5 w-3.5" />
+                    ) : (
+                      <CartIcon className="h-3.5 w-3.5" />
+                    )}
                     <span>{isInCart ? copy.catalog.inCart : copy.catalog.addToCart}</span>
                   </button>
                 </div>
@@ -342,11 +346,13 @@ export function CatalogSection({
                     onClick={() => onSelectExpandedCourse(isExpanded ? null : course.id)}
                     className={`inline-flex items-center justify-center gap-1.5 rounded-xl px-3 py-2 text-xs font-bold transition-colors ${
                       isExpanded
-                        ? 'bg-indigo-600 text-white'
-                        : 'border border-[var(--sol-border-strong)] bg-[var(--sol-surface)] text-[var(--sol-text)] hover:border-indigo-500/60'
+                        ? 'bg-blue-700 text-white dark:bg-blue-600'
+                        : 'border border-[var(--sol-border-strong)] bg-[var(--sol-surface)] text-[var(--sol-text)] hover:border-blue-700/60'
                     }`}
                   >
-                    <span>{isExpanded ? copy.catalog.closeSyllabus : copy.catalog.openSyllabus}</span>
+                    <span>
+                      {isExpanded ? copy.catalog.closeSyllabus : copy.catalog.openSyllabus}
+                    </span>
                     <ChevronDownIcon
                       className={`h-3.5 w-3.5 transition-transform ${isExpanded ? 'rotate-180' : ''}`}
                     />
@@ -355,7 +361,7 @@ export function CatalogSection({
                   <button
                     type="button"
                     onClick={() => onLaunchLab(course)}
-                    className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-indigo-600/12 px-3 py-2 text-xs font-bold text-indigo-700 transition-colors hover:bg-indigo-600 hover:text-white dark:bg-indigo-500/15 dark:text-indigo-300 dark:hover:bg-indigo-500 dark:hover:text-white"
+                    className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-blue-700/10 px-3 py-2 text-xs font-bold text-blue-700 transition-colors hover:bg-blue-700 hover:text-white dark:bg-blue-500/15 dark:text-blue-300 dark:hover:bg-blue-600 dark:hover:text-white"
                   >
                     <TerminalIcon className="h-3.5 w-3.5" />
                     <span>{copy.catalog.launchLab}</span>
@@ -380,14 +386,11 @@ export function CatalogSection({
 
       {/* Expanded Interactive Curriculum Drawer */}
       {expandedCourse && (
-        <div
-          id="curriculum-drawer"
-          className="sol-card mt-7 overflow-hidden rounded-2xl shadow-2xl shadow-slate-950/10 dark:shadow-black/40"
-        >
+        <div id="curriculum-drawer" className="sol-card mt-7 overflow-hidden rounded-2xl">
           <div
             className="flex flex-col justify-between gap-4 border-b border-[var(--sol-border)] p-5 sm:p-6 lg:flex-row lg:items-center"
             style={{
-              background: `linear-gradient(120deg, ${expandedCourse.accentHex}18 0%, transparent 65%)`,
+              background: `linear-gradient(120deg, ${expandedCourse.accentHex}14 0%, transparent 65%)`,
             }}
           >
             <div>
@@ -402,7 +405,7 @@ export function CatalogSection({
                   {expandedCourse.instructor} · {expandedCourse.instructorRole[locale]}
                 </span>
               </div>
-              <h3 className="mt-2 text-xl font-extrabold text-[var(--sol-text)] sm:text-2xl">
+              <h3 className="font-editorial mt-2 text-2xl font-semibold text-[var(--sol-text)] sm:text-3xl">
                 {expandedCourse.title[locale]}
               </h3>
               <p className="mt-1 max-w-3xl text-sm text-[var(--sol-text-secondary)]">
@@ -414,7 +417,7 @@ export function CatalogSection({
               <button
                 type="button"
                 onClick={() => onLaunchLab(expandedCourse)}
-                className="inline-flex items-center gap-1.5 rounded-xl bg-indigo-600 px-3.5 py-2 text-xs font-bold text-white hover:bg-indigo-500"
+                className="inline-flex items-center gap-1.5 rounded-xl bg-blue-700 px-3.5 py-2 text-xs font-bold text-white hover:bg-blue-800 dark:bg-blue-600 dark:hover:bg-blue-500"
               >
                 <TerminalIcon className="h-3.5 w-3.5" />
                 <span>{copy.catalog.launchLab}</span>
@@ -430,9 +433,9 @@ export function CatalogSection({
               <button
                 type="button"
                 onClick={() => onOpenCertificate(expandedCourse.id)}
-                className="inline-flex items-center gap-1.5 rounded-xl border border-[var(--sol-border-strong)] bg-[var(--sol-surface)] px-3 py-2 text-xs font-bold text-[var(--sol-text)] hover:border-emerald-500/60"
+                className="inline-flex items-center gap-1.5 rounded-xl border border-[var(--sol-border-strong)] bg-[var(--sol-surface)] px-3 py-2 text-xs font-bold text-[var(--sol-text)] hover:border-emerald-600/60"
               >
-                <AwardIcon className="h-3.5 w-3.5 text-emerald-500" />
+                <AwardIcon className="h-3.5 w-3.5 text-emerald-600" />
                 <span>{copy.tabs.certificate}</span>
               </button>
               <button
@@ -463,7 +466,7 @@ export function CatalogSection({
               <div className="mt-3 grid grid-cols-1 gap-3 md:grid-cols-3">
                 {expandedCourse.outcomes.map((outcome, idx) => (
                   <div key={idx} className="sol-elevated flex items-start gap-2.5 rounded-xl p-3.5">
-                    <CheckCircleIcon className="mt-0.5 h-4 w-4 shrink-0 text-emerald-500" />
+                    <CheckCircleIcon className="mt-0.5 h-4 w-4 shrink-0 text-emerald-600" />
                     <p className="text-xs leading-relaxed text-[var(--sol-text-secondary)]">
                       {outcome[locale]}
                     </p>
@@ -473,17 +476,19 @@ export function CatalogSection({
             </div>
 
             {/* Modules & Clickable Lessons */}
-            <h4 className="font-code text-xs font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-400">
+            <h4 className="font-code text-xs font-bold uppercase tracking-wider text-blue-700 dark:text-blue-400">
               {copy.catalog.syllabusHeading}
             </h4>
             <div className="mt-3 grid grid-cols-1 gap-4 lg:grid-cols-3">
               {expandedCourse.modules.map((mod, mIdx) => (
                 <div key={mod.id} className="sol-elevated flex flex-col rounded-xl p-4">
                   <div className="mb-3 flex items-center gap-2">
-                    <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-indigo-600 font-code text-xs font-bold text-white">
+                    <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-blue-700 font-code text-xs font-bold text-white dark:bg-blue-600">
                       {mIdx + 1}
                     </span>
-                    <h5 className="text-sm font-bold text-[var(--sol-text)]">{mod.title[locale]}</h5>
+                    <h5 className="text-sm font-bold text-[var(--sol-text)]">
+                      {mod.title[locale]}
+                    </h5>
                   </div>
 
                   <div className="flex flex-col gap-2">
@@ -497,15 +502,15 @@ export function CatalogSection({
                           onClick={() => onToggleLesson(lesson.id)}
                           className={`group flex items-start gap-2.5 rounded-xl border p-3 text-left transition-all ${
                             done
-                              ? 'border-emerald-500/40 bg-emerald-500/8'
-                              : 'border-[var(--sol-border)] bg-[var(--sol-surface)] hover:border-indigo-500/50'
+                              ? 'border-emerald-600/40 bg-emerald-600/8'
+                              : 'border-[var(--sol-border)] bg-[var(--sol-surface)] hover:border-blue-700/50'
                           }`}
                         >
                           <span
                             className={`mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-md border transition-colors ${
                               done
-                                ? 'border-emerald-500 bg-emerald-500 text-white'
-                                : 'border-[var(--sol-border-strong)] bg-transparent text-transparent group-hover:border-indigo-500'
+                                ? 'border-emerald-600 bg-emerald-600 text-white'
+                                : 'border-[var(--sol-border-strong)] bg-transparent text-transparent group-hover:border-blue-700'
                             }`}
                           >
                             <CheckIcon className="h-3 w-3" />

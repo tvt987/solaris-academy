@@ -10,7 +10,7 @@ import {
 } from '../engines/sm2';
 import { CheckCircleIcon, LayersIcon, RotateIcon } from './Icons';
 
-interface FlashcardsSectionProps {
+export interface FlashcardTrainerProps {
   courses: Course[];
   cards: FlashcardItem[];
   locale: Locale;
@@ -20,7 +20,7 @@ interface FlashcardsSectionProps {
   onResetDeck: () => void;
 }
 
-export function FlashcardsSection({
+export function FlashcardTrainer({
   courses,
   cards,
   locale,
@@ -28,7 +28,7 @@ export function FlashcardsSection({
   initialCourseFilter,
   onRateCard,
   onResetDeck,
-}: FlashcardsSectionProps) {
+}: FlashcardTrainerProps) {
   const copy = tCopy(locale);
   const [courseFilter, setCourseFilter] = useState<string>(initialCourseFilter || 'all');
   const [isFlipped, setIsFlipped] = useState(false);
@@ -87,7 +87,6 @@ export function FlashcardsSection({
     [activeCardState, nowTs],
   );
 
-  // Keyboard shortcut: Space to flip card when not inside inputs
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
       if (e.code !== 'Space' || !activeCard) return;
@@ -131,7 +130,7 @@ export function FlashcardsSection({
           <span className="font-code text-xs font-bold tracking-widest text-amber-600 dark:text-amber-400">
             {copy.flashcards.sectionLabel}
           </span>
-          <h2 className="mt-1 text-2xl font-extrabold tracking-tight text-[var(--sol-text)] sm:text-3xl">
+          <h2 className="font-editorial mt-1 text-2xl font-semibold tracking-tight text-[var(--sol-text)] sm:text-4xl">
             {copy.flashcards.sectionTitle}
           </h2>
           <p className="mt-1.5 max-w-2xl text-sm text-[var(--sol-text-secondary)]">
@@ -165,8 +164,8 @@ export function FlashcardsSection({
           }}
           className={`rounded-full px-3.5 py-1.5 text-xs font-semibold transition-all ${
             courseFilter === 'all'
-              ? 'bg-indigo-600 text-white shadow-sm'
-              : 'border border-[var(--sol-border)] bg-[var(--sol-surface)] text-[var(--sol-text-secondary)] hover:text-[var(--sol-text)]'
+              ? 'bg-blue-700 text-white shadow-sm dark:bg-blue-600'
+              : 'border border-[var(--sol-border-strong)] bg-[var(--sol-surface)] text-[var(--sol-text-secondary)] hover:text-[var(--sol-text)]'
           }`}
         >
           {copy.flashcards.filterAll}
@@ -182,8 +181,8 @@ export function FlashcardsSection({
             }}
             className={`rounded-full px-3.5 py-1.5 font-code text-xs font-semibold transition-all ${
               courseFilter === c.id
-                ? 'bg-indigo-600 text-white shadow-sm'
-                : 'border border-[var(--sol-border)] bg-[var(--sol-surface)] text-[var(--sol-text-secondary)] hover:text-[var(--sol-text)]'
+                ? 'bg-blue-700 text-white shadow-sm dark:bg-blue-600'
+                : 'border border-[var(--sol-border-strong)] bg-[var(--sol-surface)] text-[var(--sol-text-secondary)] hover:text-[var(--sol-text)]'
             }`}
           >
             {c.code}
@@ -216,7 +215,7 @@ export function FlashcardsSection({
           <div className="font-code text-xs font-semibold text-[var(--sol-text-muted)]">
             {copy.flashcards.statEase}
           </div>
-          <div className="mt-1 font-code text-2xl font-extrabold text-indigo-600 dark:text-indigo-400">
+          <div className="mt-1 font-code text-2xl font-extrabold text-blue-700 dark:text-blue-400">
             {stats.avgEaseFactor.toFixed(2)}
           </div>
         </div>
@@ -248,12 +247,12 @@ export function FlashcardsSection({
                     }`}
                   >
                     {/* Front Face */}
-                    <div className="sol-flip-face sol-card absolute inset-0 flex flex-col justify-between rounded-2xl p-6 shadow-xl shadow-slate-950/10 dark:shadow-black/40 sm:p-8">
+                    <div className="sol-flip-face sol-card absolute inset-0 flex flex-col justify-between rounded-2xl p-6 sm:p-8">
                       <div className="flex flex-wrap items-center justify-between gap-2">
                         <div className="flex items-center gap-2">
                           <span
                             className="rounded-md px-2 py-0.5 font-code text-xs font-bold text-white"
-                            style={{ backgroundColor: activeCourse?.accentHex ?? '#4f46e5' }}
+                            style={{ backgroundColor: activeCourse?.accentHex ?? '#1d4ed8' }}
                           >
                             {activeCourse?.code ?? 'DECK'}
                           </span>
@@ -261,7 +260,7 @@ export function FlashcardsSection({
                             {activeCard.tag}
                           </span>
                         </div>
-                        <span className="rounded-full border border-indigo-500/35 bg-indigo-500/10 px-2.5 py-0.5 font-code text-[10px] font-bold tracking-wider text-indigo-600 dark:text-indigo-300">
+                        <span className="rounded-full border border-blue-700/30 bg-blue-700/10 px-2.5 py-0.5 font-code text-[10px] font-bold tracking-wider text-blue-700 dark:text-blue-300">
                           {copy.flashcards.questionBadge}
                         </span>
                       </div>
@@ -282,12 +281,12 @@ export function FlashcardsSection({
                     </div>
 
                     {/* Back Face */}
-                    <div className="sol-flip-face sol-flip-back sol-card absolute inset-0 flex flex-col justify-between rounded-2xl border-emerald-500/40 p-6 shadow-xl shadow-slate-950/10 dark:shadow-black/40 sm:p-8">
+                    <div className="sol-flip-face sol-flip-back sol-card absolute inset-0 flex flex-col justify-between rounded-2xl border-emerald-600/40 p-6 sm:p-8">
                       <div className="flex flex-wrap items-center justify-between gap-2">
                         <span className="font-code text-xs font-bold text-[var(--sol-text-muted)]">
                           {activeCourse?.title[locale]} · {activeCard.tag}
                         </span>
-                        <span className="rounded-full border border-emerald-500/40 bg-emerald-500/12 px-2.5 py-0.5 font-code text-[10px] font-bold tracking-wider text-emerald-700 dark:text-emerald-300">
+                        <span className="rounded-full border border-emerald-600/40 bg-emerald-600/12 px-2.5 py-0.5 font-code text-[10px] font-bold tracking-wider text-emerald-700 dark:text-emerald-300">
                           {copy.flashcards.answerBadge}
                         </span>
                       </div>
@@ -297,7 +296,7 @@ export function FlashcardsSection({
                           {activeCard.back[locale]}
                         </p>
                         {activeCard.codeSnippet && (
-                          <pre className="overflow-x-auto rounded-xl border border-slate-800 bg-slate-950 px-3.5 py-2.5 font-code text-xs text-emerald-300">
+                          <pre className="overflow-x-auto rounded-xl border border-slate-800 bg-slate-900 px-3.5 py-2.5 font-code text-xs text-emerald-300">
                             <code>{activeCard.codeSnippet}</code>
                           </pre>
                         )}
@@ -318,7 +317,7 @@ export function FlashcardsSection({
                   data-testid="sm2-rate-again"
                   disabled={!isFlipped}
                   onClick={() => handleRate('again')}
-                  className="flex flex-col items-center rounded-xl border border-rose-500/40 bg-rose-500/10 px-3 py-3 text-rose-700 transition-all hover:bg-rose-500 hover:text-white disabled:cursor-not-allowed disabled:opacity-45 dark:text-rose-300 dark:hover:text-white"
+                  className="flex flex-col items-center rounded-xl border border-rose-500/40 bg-rose-500/10 px-3 py-3 text-rose-700 transition-all hover:bg-rose-600 hover:text-white disabled:cursor-not-allowed disabled:opacity-45 dark:text-rose-300 dark:hover:text-white"
                 >
                   <span className="text-xs font-extrabold">{copy.flashcards.again}</span>
                   <span className="mt-0.5 font-code text-[11px] opacity-85">
@@ -331,7 +330,7 @@ export function FlashcardsSection({
                   data-testid="sm2-rate-good"
                   disabled={!isFlipped}
                   onClick={() => handleRate('good')}
-                  className="flex flex-col items-center rounded-xl border border-indigo-500/40 bg-indigo-500/10 px-3 py-3 text-indigo-700 transition-all hover:bg-indigo-600 hover:text-white disabled:cursor-not-allowed disabled:opacity-45 dark:text-indigo-300 dark:hover:text-white"
+                  className="flex flex-col items-center rounded-xl border border-blue-700/40 bg-blue-700/10 px-3 py-3 text-blue-700 transition-all hover:bg-blue-700 hover:text-white disabled:cursor-not-allowed disabled:opacity-45 dark:text-blue-300 dark:hover:text-white"
                 >
                   <span className="text-xs font-extrabold">{copy.flashcards.good}</span>
                   <span className="mt-0.5 font-code text-[11px] opacity-85">
@@ -344,7 +343,7 @@ export function FlashcardsSection({
                   data-testid="sm2-rate-easy"
                   disabled={!isFlipped}
                   onClick={() => handleRate('easy')}
-                  className="flex flex-col items-center rounded-xl border border-emerald-500/40 bg-emerald-500/10 px-3 py-3 text-emerald-700 transition-all hover:bg-emerald-600 hover:text-white disabled:cursor-not-allowed disabled:opacity-45 dark:text-emerald-300 dark:hover:text-white"
+                  className="flex flex-col items-center rounded-xl border border-emerald-600/40 bg-emerald-600/10 px-3 py-3 text-emerald-700 transition-all hover:bg-emerald-600 hover:text-white disabled:cursor-not-allowed disabled:opacity-45 dark:text-emerald-300 dark:hover:text-white"
                 >
                   <span className="text-xs font-extrabold">{copy.flashcards.easy}</span>
                   <span className="mt-0.5 font-code text-[11px] opacity-85">
@@ -355,8 +354,8 @@ export function FlashcardsSection({
             </div>
           ) : (
             <div className="sol-card flex min-h-[320px] flex-col items-center justify-center rounded-2xl p-8 text-center">
-              <CheckCircleIcon className="h-12 w-12 text-emerald-500" />
-              <h3 className="mt-3 text-xl font-extrabold text-[var(--sol-text)]">
+              <CheckCircleIcon className="h-12 w-12 text-emerald-600" />
+              <h3 className="font-editorial mt-3 text-2xl font-semibold text-[var(--sol-text)]">
                 {copy.flashcards.deckCompleteTitle}
               </h3>
               <p className="mt-2 max-w-md text-sm text-[var(--sol-text-secondary)]">
@@ -365,7 +364,7 @@ export function FlashcardsSection({
               <button
                 type="button"
                 onClick={handleReviewAhead}
-                className="mt-5 inline-flex items-center gap-2 rounded-xl bg-indigo-600 px-5 py-2.5 text-xs font-bold text-white hover:bg-indigo-500"
+                className="mt-5 inline-flex items-center gap-2 rounded-xl bg-blue-700 px-5 py-2.5 text-xs font-bold text-white hover:bg-blue-800 dark:bg-blue-600 dark:hover:bg-blue-500"
               >
                 <LayersIcon className="h-4 w-4" />
                 <span>{copy.flashcards.reviewAhead}</span>
@@ -410,8 +409,8 @@ export function FlashcardsSection({
                   }}
                   className={`flex w-full items-center justify-between gap-2 rounded-xl border px-3 py-2.5 text-left transition-all ${
                     isSelected
-                      ? 'border-indigo-500 bg-indigo-600/10'
-                      : 'border-[var(--sol-border)] bg-[var(--sol-elevated)]/60 hover:border-indigo-500/40'
+                      ? 'border-blue-700 bg-blue-700/8 dark:border-blue-400 dark:bg-blue-500/15'
+                      : 'border-[var(--sol-border)] bg-[var(--sol-elevated)]/60 hover:border-blue-700/40'
                   }`}
                 >
                   <div className="min-w-0">
@@ -425,8 +424,8 @@ export function FlashcardsSection({
                   <span
                     className={`shrink-0 rounded-md px-2 py-0.5 font-code text-[10px] font-bold ${
                       due
-                        ? 'bg-amber-500/15 text-amber-700 dark:text-amber-300'
-                        : 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-300'
+                        ? 'bg-amber-500/15 text-amber-800 dark:text-amber-300'
+                        : 'bg-emerald-600/15 text-emerald-700 dark:text-emerald-300'
                     }`}
                   >
                     {statusLabel}
@@ -440,3 +439,5 @@ export function FlashcardsSection({
     </section>
   );
 }
+
+export default FlashcardTrainer;

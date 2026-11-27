@@ -1,7 +1,13 @@
 export type Locale = 'en' | 'vi';
 export type Currency = 'VND' | 'USD';
 export type ThemeMode = 'dark' | 'light';
-export type WorkspaceTab = 'catalog' | 'sandbox' | 'flashcards' | 'certificate' | 'checkout';
+export type WorkspaceTab =
+  | 'catalog'
+  | 'algorithms'
+  | 'sandbox'
+  | 'flashcards'
+  | 'certificate'
+  | 'checkout';
 
 export type CourseCategory = 'backend' | 'frontend' | 'ai' | 'data';
 export type CourseDifficulty = 'intermediate' | 'advanced' | 'architect';
