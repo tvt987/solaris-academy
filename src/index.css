@@ -1,0 +1,159 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --font-sans: "Plus Jakarta Sans", ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-serif: "Newsreader", Georgia, Cambria, "Times New Roman", serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+
+:root {
+  color-scheme: light;
+  --sol-bg: #f6f5f0;
+  --sol-surface: #ffffff;
+  --sol-elevated: #f0eee7;
+  --sol-border: rgba(15, 23, 42, 0.1);
+  --sol-border-strong: rgba(15, 23, 42, 0.18);
+  --sol-text: #0f172a;
+  --sol-text-secondary: #334155;
+  --sol-text-muted: #64748b;
+  --sol-grid: rgba(15, 23, 42, 0.045);
+  --sol-code-bg: #0f172a;
+  --sol-code-text: #e2e8f0;
+}
+
+.dark {
+  color-scheme: dark;
+  --sol-bg: #080c15;
+  --sol-surface: #0f1626;
+  --sol-elevated: #151f34;
+  --sol-border: rgba(148, 163, 184, 0.14);
+  --sol-border-strong: rgba(148, 163, 184, 0.26);
+  --sol-text: #f8fafc;
+  --sol-text-secondary: #cbd5e1;
+  --sol-text-muted: #94a3b8;
+  --sol-grid: rgba(148, 163, 184, 0.055);
+  --sol-code-bg: #070b13;
+  --sol-code-text: #e2e8f0;
+}
+
+html {
+  scroll-behavior: smooth;
+  overflow-x: clip;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-sans);
+  background-color: var(--sol-bg);
+  color: var(--sol-text);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: clip;
+}
+
+.sol-grid-backdrop {
+  background-image:
+    linear-gradient(to right, var(--sol-grid) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--sol-grid) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+
+.sol-card {
+  background-color: var(--sol-surface);
+  border: 1px solid var(--sol-border);
+}
+
+.sol-elevated {
+  background-color: var(--sol-elevated);
+  border: 1px solid var(--sol-border);
+}
+
+.font-editorial {
+  font-family: var(--font-serif);
+}
+
+.font-code {
+  font-family: var(--font-mono);
+}
+
+/* 3D Flashcard Flip */
+.sol-perspective {
+  perspective: 1400px;
+}
+
+.sol-flip-inner {
+  transform-style: preserve-3d;
+  transition: transform 0.52s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.sol-flip-inner.is-flipped {
+  transform: rotateY(180deg);
+}
+
+.sol-flip-face {
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+.sol-flip-back {
+  transform: rotateY(180deg);
+}
+
+/* Custom subtle scrollbars */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(100, 116, 139, 0.32);
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(100, 116, 139, 0.52);
+}
+
+/* A4 Landscape Archival Print Stylesheet */
+@page {
+  size: A4 landscape;
+  margin: 0;
+}
+
+@media print {
+  body {
+    background: #0b0f17 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  .no-print {
+    display: none !important;
+  }
+
+  .print-only-cert {
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    width: 100vw;
+    height: 100vh;
+    padding: 0;
+    margin: 0;
+    background: #0b0f17 !important;
+  }
+
+  .print-only-cert svg {
+    width: 100% !important;
+    height: 100% !important;
+    max-width: 297mm;
+    max-height: 210mm;
+  }
+}
