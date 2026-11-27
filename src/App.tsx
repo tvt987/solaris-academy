@@ -34,6 +34,7 @@ import { CheckCircleIcon, RotateIcon, SolarisMark } from './components/Icons';
 
 // Route-level React.lazy code-splitting keeps initial entry JS ultra-lean
 const AlgorithmVisualizerLab = lazy(() => import('./components/AlgorithmVisualizerLab'));
+const SystemDesignCapacityLab = lazy(() => import('./components/SystemDesignCapacityLab'));
 const CodeSandboxLab = lazy(() => import('./components/CodeSandboxLab'));
 const FlashcardTrainer = lazy(() => import('./components/FlashcardTrainer'));
 const CertificateModal = lazy(() => import('./components/CertificateModal'));
@@ -398,6 +399,10 @@ export function App() {
 
         <Suspense fallback={<WorkspaceFallback locale={locale} />}>
           {activeTab === 'algorithms' && <AlgorithmVisualizerLab locale={locale} />}
+
+          {activeTab === 'system-design' && (
+            <SystemDesignCapacityLab locale={locale} onNotify={notify} />
+          )}
 
           {activeTab === 'sandbox' && (
             <CodeSandboxLab

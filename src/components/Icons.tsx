@@ -313,6 +313,47 @@ export function ChevronDownIcon({ className = 'h-4 w-4', ...props }: IconProps) 
   );
 }
 
+export function NetworkScaleIcon({ className = 'h-4 w-4', ...props }: IconProps) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className={className} aria-hidden="true" {...props}>
+      <rect x="2" y="3" width="6" height="6" rx="1.5" />
+      <rect x="16" y="3" width="6" height="6" rx="1.5" />
+      <rect x="9" y="15" width="6" height="6" rx="1.5" />
+      <path d="M5 9v3a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V9" />
+      <path d="M12 14v1" />
+    </svg>
+  );
+}
+
+export function SparkScaleIcon({ className = 'h-4 w-4', ...props }: IconProps) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" className={className} aria-hidden="true" {...props}>
+      <path d="M3 17l6-6 4 4 8-8" />
+      <path d="M14 7h7v7" />
+    </svg>
+  );
+}
+
+export function DatabaseIcon({ className = 'h-4 w-4', ...props }: IconProps) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className={className} aria-hidden="true" {...props}>
+      <ellipse cx="12" cy="5" rx="9" ry="3" />
+      <path d="M3 5v14a9 3 0 0 0 18 0V5" />
+      <path d="M3 12a9 3 0 0 0 18 0" />
+    </svg>
+  );
+}
+
+export function CloudGlobeIcon({ className = 'h-4 w-4', ...props }: IconProps) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className={className} aria-hidden="true" {...props}>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M3.6 9h16.8M3.6 15h16.8" />
+      <path d="M11.5 3a17 17 0 0 0 0 18M12.5 3a17 17 0 0 1 0 18" />
+    </svg>
+  );
+}
+
 export function CategoryGlyph({ category, className = 'h-5 w-5' }: { category: CourseCategory; className?: string }) {
   switch (category) {
     case 'backend':

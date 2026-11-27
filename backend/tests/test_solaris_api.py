@@ -37,7 +37,7 @@ def test_health_endpoint_returns_ok() -> None:
     body = res.json()
     assert body["status"] == "ok"
     assert body["service"] == "solaris-academy-api"
-    assert body["version"] == "2.0.0"
+    assert body["version"] == "3.0.0"
     assert body["sandbox_engine"] == "python-ast-zero-eval"
 
 
@@ -510,3 +510,316 @@ def test_certificate_verify_rejects_malformed_credential_id() -> None:
     assert verify_res.status_code == 200
     assert verify_res.json()["valid"] is False
     assert "malformed" in verify_res.json()["reason"].lower()
+
+
+# ============================================================================
+# 5. SYSTEM DESIGN BACK-OF-THE-ENVELOPE CAPACITY & SCALING API
+# ============================================================================
+
+
+def test_capacity_url_shortener_exact_qps_and_cache_miss_math() -> None:
+    res = client.post(
+        "/api/v1/system-design/capacity",
+        json={
+            "blueprint_id": "url-shortener",
+            "dau": 2_500_000,
+            "read_write_ratio": 80,
+            "peak_multiplier": 6,
+            "cache_hit_ratio_pct": 82,
+            "avg_payload_kb": 4,
+            "runtime": "dotnet10",
+        },
+    )
+    assert res.status_code == 200
+    body = res.json()
+    assert body["blueprint_id"] == "url-shortener"
+    assert body["avg_write_qps"] == 57.87
+    assert body["avg_read_qps"] == 4629.63
+    assert body["avg_total_qps"] == 4687.5
+    assert body["peak_write_qps"] == 347.22
+    assert body["peak_read_qps"] == 27777.78
+    assert body["peak_total_qps"] == 28125.0
+    assert body["cache_miss_read_qps"] == 5000.0
+    assert body["origin_db_peak_qps"] == 5347.22
+    assert body["overall_status"] == "overloaded"
+    assert set(body["overloaded_tiers"]) >= {"api_gateway", "app_fleet", "database"}
+
+
+def test_capacity_matches_frontend_typescript_parity_vector_exactly() -> None:
+    res = client.post(
+        "/api/v1/system-design/capacity",
+        json={
+            "blueprint_id": "url-shortener",
+            "dau": 1_000_000,
+            "read_write_ratio": 50,
+            "peak_multiplier": 5,
+            "cache_hit_ratio_pct": 80,
+            "avg_payload_kb": 8,
+            "runtime": "dotnet10",
+        },
+    )
+    assert res.status_code == 200
+    d = res.json()
+    assert d["avg_write_qps"] == 23.15
+    assert d["avg_read_qps"] == 1157.41
+    assert d["peak_total_qps"] == 5902.78
+    assert d["cache_miss_read_qps"] == 1157.41
+    assert d["origin_db_peak_qps"] == 1273.15
+    assert d["required_app_pods"] == 3
+    assert d["runtime_pod_comparison"] == {"dotnet10": 3, "go": 3, "nodejs": 6}
+    assert d["required_db_primary_shards"] == 1
+    assert d["required_db_read_replicas"] == 1
+    assert d["peak_cdn_egress_gbps"] == 0.37
+    assert d["five_year_replicated_storage_tb"] == 92.51
+
+
+def test_capacity_flash_sale_voucher_blueprint_sizing() -> None:
+    res = client.post(
+        "/api/v1/system-design/capacity",
+        json={
+            "blueprint_id": "flash-sale-voucher",
+            "dau": 2_000_000,
+            "read_write_ratio": 25,
+            "peak_multiplier": 9,
+            "cache_hit_ratio_pct": 74,
+            "avg_payload_kb": 12,
+            "runtime": "dotnet10",
+        },
+    )
+    assert res.status_code == 200
+    d = res.json()
+    assert d["blueprint_name"] == "Flash-Sale E-Commerce Voucher API"
+    assert d["avg_write_qps"] == 92.59
+    assert d["peak_write_qps"] == 833.33
+    assert d["origin_db_peak_qps"] == 6250.0
+    assert d["peak_cdn_egress_gbps"] == 2.0
+    assert len(d["tiers"]) == 5
+
+
+def test_capacity_realtime_chat_feed_blueprint_sizing() -> None:
+    res = client.post(
+        "/api/v1/system-design/capacity",
+        json={
+            "blueprint_id": "realtime-chat-feed",
+            "dau": 1_500_000,
+            "read_write_ratio": 18,
+            "peak_multiplier": 5,
+            "cache_hit_ratio_pct": 72,
+            "avg_payload_kb": 16,
+            "runtime": "go",
+        },
+    )
+    assert res.status_code == 200
+    d = res.json()
+    assert d["runtime"] == "go"
+    assert d["avg_write_qps"] == 260.42
+    assert d["origin_db_peak_qps"] == 7864.58
+    assert d["required_db_read_replicas"] >= 2
+    assert d["five_year_replicated_storage_tb"] == pytest.approx(
+        d["five_year_raw_storage_tb"] * 3, abs=0.05
+    )
+
+
+def test_capacity_higher_cache_hit_ratio_slashes_origin_db_qps_and_replicas() -> None:
+    low = client.post(
+        "/api/v1/system-design/capacity",
+        json={
+            "blueprint_id": "url-shortener",
+            "dau": 3_000_000,
+            "read_write_ratio": 80,
+            "peak_multiplier": 6,
+            "cache_hit_ratio_pct": 50,
+            "avg_payload_kb": 4,
+            "runtime": "dotnet10",
+        },
+    ).json()
+    high = client.post(
+        "/api/v1/system-design/capacity",
+        json={
+            "blueprint_id": "url-shortener",
+            "dau": 3_000_000,
+            "read_write_ratio": 80,
+            "peak_multiplier": 6,
+            "cache_hit_ratio_pct": 96,
+            "avg_payload_kb": 4,
+            "runtime": "dotnet10",
+        },
+    ).json()
+
+    assert low["peak_total_qps"] == high["peak_total_qps"]
+    assert high["origin_db_peak_qps"] < low["origin_db_peak_qps"] * 0.15
+    assert high["required_db_read_replicas"] < low["required_db_read_replicas"]
+
+
+def test_capacity_runtime_pod_comparison_orders_go_dotnet_nodejs() -> None:
+    d = client.post(
+        "/api/v1/system-design/capacity",
+        json={
+            "blueprint_id": "url-shortener",
+            "dau": 6_000_000,
+            "read_write_ratio": 80,
+            "peak_multiplier": 6,
+            "cache_hit_ratio_pct": 85,
+            "avg_payload_kb": 4,
+            "runtime": "nodejs",
+        },
+    ).json()
+    cmp = d["runtime_pod_comparison"]
+    assert cmp["go"] <= cmp["dotnet10"] < cmp["nodejs"]
+    assert d["required_app_pods"] == cmp["nodejs"]
+
+
+def test_capacity_auto_scale_resolves_all_bottlenecks_to_healthy() -> None:
+    before = client.post(
+        "/api/v1/system-design/capacity",
+        json={
+            "blueprint_id": "flash-sale-voucher",
+            "dau": 4_000_000,
+            "read_write_ratio": 40,
+            "peak_multiplier": 9,
+            "cache_hit_ratio_pct": 70,
+            "avg_payload_kb": 16,
+            "runtime": "dotnet10",
+            "auto_scale": False,
+        },
+    ).json()
+    assert before["overall_status"] == "overloaded"
+    assert len(before["overloaded_tiers"]) >= 3
+
+    after = client.post(
+        "/api/v1/system-design/capacity",
+        json={
+            "blueprint_id": "flash-sale-voucher",
+            "dau": 4_000_000,
+            "read_write_ratio": 40,
+            "peak_multiplier": 9,
+            "cache_hit_ratio_pct": 70,
+            "avg_payload_kb": 16,
+            "runtime": "dotnet10",
+            "auto_scale": True,
+        },
+    ).json()
+    assert after["overall_status"] == "healthy"
+    assert after["bottlenecks"] == []
+    assert after["overloaded_tiers"] == []
+    assert all(tier["status"] == "healthy" for tier in after["tiers"])
+    assert after["monthly_cloud_cost_usd"] > before["monthly_cloud_cost_usd"]
+
+
+def test_capacity_auto_scale_handles_maximum_extreme_workload() -> None:
+    res = client.post(
+        "/api/v1/system-design/capacity",
+        json={
+            "blueprint_id": "realtime-chat-feed",
+            "dau": 10_000_000,
+            "read_write_ratio": 100,
+            "peak_multiplier": 10,
+            "cache_hit_ratio_pct": 50,
+            "avg_payload_kb": 64,
+            "runtime": "nodejs",
+            "auto_scale": True,
+        },
+    )
+    assert res.status_code == 200
+    d = res.json()
+    assert d["overall_status"] == "healthy"
+    assert d["overloaded_tiers"] == []
+    assert d["required_db_primary_shards"] > 1
+    assert d["required_db_read_replicas"] > 100
+    assert d["peak_cdn_egress_gbps"] > 500
+
+
+def test_capacity_custom_provisioned_fleet_triggers_targeted_warning() -> None:
+    res = client.post(
+        "/api/v1/system-design/capacity",
+        json={
+            "blueprint_id": "url-shortener",
+            "dau": 2_500_000,
+            "read_write_ratio": 80,
+            "peak_multiplier": 6,
+            "cache_hit_ratio_pct": 82,
+            "avg_payload_kb": 4,
+            "runtime": "dotnet10",
+            "provisioned_fleet": {
+                "cdn_gbps": 10.0,
+                "api_gw_nodes": 3,
+                "app_pods": 10,
+                "redis_shards": 2,
+                "db_primary_shards": 1,
+                "db_read_replicas": 2,
+            },
+        },
+    )
+    assert res.status_code == 200
+    d = res.json()
+    assert d["overall_status"] == "warning"
+    assert d["bottlenecks"] == ["app_fleet"]
+    assert d["overloaded_tiers"] == []
+
+
+def test_capacity_monthly_cost_breakdown_sums_to_total() -> None:
+    d = client.post(
+        "/api/v1/system-design/capacity",
+        json={
+            "blueprint_id": "flash-sale-voucher",
+            "dau": 1_000_000,
+            "read_write_ratio": 30,
+            "peak_multiplier": 5,
+            "cache_hit_ratio_pct": 80,
+            "avg_payload_kb": 8,
+            "runtime": "go",
+            "auto_scale": True,
+        },
+    ).json()
+    cb = d["cost_breakdown"]
+    assert (
+        cb["cdn_usd"]
+        + cb["api_gw_usd"]
+        + cb["app_fleet_usd"]
+        + cb["redis_usd"]
+        + cb["database_usd"]
+        == cb["total_monthly_usd"]
+        == d["monthly_cloud_cost_usd"]
+    )
+
+
+@pytest.mark.parametrize(
+    "bad_payload",
+    [
+        {
+            "blueprint_id": "url-shortener",
+            "dau": 500,  # Below 10K min
+            "read_write_ratio": 50,
+            "peak_multiplier": 5,
+            "cache_hit_ratio_pct": 80,
+            "avg_payload_kb": 4,
+        },
+        {
+            "blueprint_id": "url-shortener",
+            "dau": 50_000_000,  # Above 10M max
+            "read_write_ratio": 50,
+            "peak_multiplier": 5,
+            "cache_hit_ratio_pct": 80,
+            "avg_payload_kb": 4,
+        },
+        {
+            "blueprint_id": "unknown-blueprint",
+            "dau": 100_000,
+            "read_write_ratio": 50,
+            "peak_multiplier": 5,
+            "cache_hit_ratio_pct": 80,
+            "avg_payload_kb": 4,
+        },
+        {
+            "blueprint_id": "url-shortener",
+            "dau": 100_000,
+            "read_write_ratio": 50,
+            "peak_multiplier": 5,
+            "cache_hit_ratio_pct": 99,  # Above 98% max
+            "avg_payload_kb": 4,
+        },
+    ],
+)
+def test_capacity_rejects_invalid_slider_bounds_with_422(bad_payload: dict) -> None:
+    res = client.post("/api/v1/system-design/capacity", json=bad_payload)
+    assert res.status_code == 422

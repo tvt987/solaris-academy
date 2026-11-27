@@ -20,8 +20,20 @@ export default defineConfig({
           if (normalized.includes('/node_modules/qrcode/')) {
             return 'qrcode';
           }
+          if (normalized.includes('/src/engines/systemDesignEngine')) {
+            return 'system-design-engine';
+          }
+          if (normalized.includes('/src/engines/algoVisualizerEngine')) {
+            return 'algo-engine';
+          }
           if (normalized.includes('/src/engines/')) {
             return 'engines';
+          }
+          if (
+            normalized.includes('/src/data/sandbox') ||
+            normalized.includes('/src/data/courses')
+          ) {
+            return 'curriculum-data';
           }
           return undefined;
         },

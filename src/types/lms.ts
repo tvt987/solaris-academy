@@ -4,6 +4,7 @@ export type ThemeMode = 'dark' | 'light';
 export type WorkspaceTab =
   | 'catalog'
   | 'algorithms'
+  | 'system-design'
   | 'sandbox'
   | 'flashcards'
   | 'certificate'

@@ -1,3 +1,3 @@
-"""Solaris Academy v2.0 FastAPI backend package."""
+"""Solaris Academy v3.0 FastAPI backend package."""
 
-__version__ = "2.0.0"
+__version__ = "3.0.0"

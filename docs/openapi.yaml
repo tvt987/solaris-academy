@@ -1,11 +1,12 @@
 openapi: 3.1.0
 info:
   title: Solaris Academy API
-  version: 2.0.0
-  summary: Zero-Eval Python AST Auto-Grader, SM-2 Scheduler & HMAC-SHA256 Certificate Registry
+  version: 3.0.0
+  summary: Zero-Eval Python AST Auto-Grader, System Design Capacity Estimator, SM-2 Scheduler & HMAC-SHA256 Certificate Registry
   description: |
-    Production Python 3.12 FastAPI backend powering Solaris Academy v2.0.
+    Production Python 3.12 FastAPI backend powering Solaris Academy v3.0.
     Provides deterministic zero-eval AST sandbox grading with bounded execution budgets,
+    FAANG back-of-the-envelope System Design capacity & bottleneck estimation,
     SuperMemo-2 spaced-repetition scheduling, and constant-time HMAC-SHA256 certificate verification.
   contact:
     name: Truong Van Tinh (TVT Studio)
@@ -21,6 +22,8 @@ tags:
     description: Health and engine readiness telemetry
   - name: AST Grader
     description: Zero-eval Python AST security validation and deterministic unit test grading
+  - name: System Design Capacity
+    description: Back-of-the-envelope QPS, cache-miss Origin DB QPS, pod/replica sizing, 5-year TB storage, CDN egress Gbps, bottleneck flags & monthly cloud cost
   - name: SM-2 Spaced Repetition
     description: Pure SuperMemo-2 interval and ease-factor calculation
   - name: HMAC Certificates
@@ -42,7 +45,7 @@ paths:
               example:
                 status: ok
                 service: solaris-academy-api
-                version: 2.0.0
+                version: 3.0.0
                 sandbox_engine: python-ast-zero-eval
 
   /api/v1/sandbox/grade:
@@ -167,6 +170,36 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/CertificateVerifyResponse'
+
+  /api/v1/system-design/capacity:
+    post:
+      tags: [System Design Capacity]
+      summary: Estimate back-of-the-envelope QPS, Origin DB QPS, pod/replica sizing, 5-year TB storage, CDN egress Gbps, tier bottlenecks & monthly cloud cost
+      operationId: estimateSystemDesignCapacity
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SystemDesignCapacityRequest'
+            example:
+              blueprint_id: url-shortener
+              dau: 2500000
+              read_write_ratio: 80
+              peak_multiplier: 6
+              cache_hit_ratio_pct: 82
+              avg_payload_kb: 4
+              runtime: dotnet10
+              auto_scale: false
+      responses:
+        '200':
+          description: Deterministic back-of-the-envelope capacity sizing report, 5-tier bottleneck audit & auto-scale target fleet
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SystemDesignCapacityResponse'
+        '422':
+          description: Slider parameter out of valid bounds or unknown blueprint/runtime
 
 components:
   schemas:
@@ -463,3 +496,272 @@ components:
         verified_at:
           type: string
           format: date-time
+
+    ProvisionedFleet:
+      type: object
+      required:
+        - cdn_gbps
+        - api_gw_nodes
+        - app_pods
+        - redis_shards
+        - db_primary_shards
+        - db_read_replicas
+      properties:
+        cdn_gbps:
+          type: number
+          minimum: 0.5
+          maximum: 10000
+        api_gw_nodes:
+          type: integer
+          minimum: 1
+          maximum: 500
+        app_pods:
+          type: integer
+          minimum: 1
+          maximum: 5000
+        redis_shards:
+          type: integer
+          minimum: 1
+          maximum: 500
+        db_primary_shards:
+          type: integer
+          minimum: 1
+          maximum: 200
+        db_read_replicas:
+          type: integer
+          minimum: 1
+          maximum: 2000
+
+    SystemDesignCapacityRequest:
+      type: object
+      required:
+        - dau
+        - read_write_ratio
+        - peak_multiplier
+        - cache_hit_ratio_pct
+        - avg_payload_kb
+      properties:
+        blueprint_id:
+          type: string
+          enum: [url-shortener, flash-sale-voucher, realtime-chat-feed]
+          default: url-shortener
+        dau:
+          type: integer
+          minimum: 10000
+          maximum: 10000000
+        read_write_ratio:
+          type: integer
+          minimum: 10
+          maximum: 100
+        peak_multiplier:
+          type: integer
+          minimum: 3
+          maximum: 10
+        cache_hit_ratio_pct:
+          type: integer
+          minimum: 50
+          maximum: 98
+        avg_payload_kb:
+          type: integer
+          minimum: 1
+          maximum: 64
+        runtime:
+          type: string
+          enum: [dotnet10, go, nodejs]
+          default: dotnet10
+        provisioned_fleet:
+          oneOf:
+            - $ref: '#/components/schemas/ProvisionedFleet'
+            - type: 'null'
+        auto_scale:
+          type: boolean
+          default: false
+
+    TierHealth:
+      type: object
+      required:
+        - id
+        - label
+        - load_value
+        - capacity_value
+        - unit
+        - utilization_pct
+        - status
+        - provisioned_units
+        - recommended_units
+        - summary
+      properties:
+        id:
+          type: string
+          enum: [cdn, api_gateway, app_fleet, redis_cache, database]
+        label:
+          type: string
+        load_value:
+          type: number
+        capacity_value:
+          type: number
+        unit:
+          type: string
+        utilization_pct:
+          type: number
+        status:
+          type: string
+          enum: [healthy, warning, overloaded]
+        provisioned_units:
+          type: number
+        recommended_units:
+          type: number
+        summary:
+          type: string
+
+    CostBreakdown:
+      type: object
+      required: [cdn_usd, api_gw_usd, app_fleet_usd, redis_usd, database_usd, total_monthly_usd]
+      properties:
+        cdn_usd:
+          type: integer
+        api_gw_usd:
+          type: integer
+        app_fleet_usd:
+          type: integer
+        redis_usd:
+          type: integer
+        database_usd:
+          type: integer
+        total_monthly_usd:
+          type: integer
+
+    RuntimePodComparison:
+      type: object
+      required: [dotnet10, go, nodejs]
+      properties:
+        dotnet10:
+          type: integer
+        go:
+          type: integer
+        nodejs:
+          type: integer
+
+    SystemDesignCapacityResponse:
+      type: object
+      required:
+        - blueprint_id
+        - blueprint_name
+        - runtime
+        - dau
+        - read_write_ratio
+        - peak_multiplier
+        - cache_hit_ratio_pct
+        - avg_payload_kb
+        - avg_write_qps
+        - avg_read_qps
+        - avg_total_qps
+        - peak_write_qps
+        - peak_read_qps
+        - peak_total_qps
+        - cache_hit_qps
+        - cache_miss_read_qps
+        - origin_db_peak_qps
+        - required_app_pods
+        - runtime_pod_comparison
+        - required_db_primary_shards
+        - required_db_read_replicas
+        - required_redis_shards
+        - required_api_gw_nodes
+        - required_cdn_gbps
+        - daily_storage_gb
+        - five_year_raw_storage_tb
+        - five_year_replicated_storage_tb
+        - peak_cdn_egress_gbps
+        - monthly_egress_tb
+        - monthly_cloud_cost_usd
+        - cost_breakdown
+        - tiers
+        - bottlenecks
+        - overloaded_tiers
+        - overall_status
+        - provisioned_fleet
+        - auto_scaled_fleet
+      properties:
+        blueprint_id:
+          type: string
+        blueprint_name:
+          type: string
+        runtime:
+          type: string
+          enum: [dotnet10, go, nodejs]
+        dau:
+          type: integer
+        read_write_ratio:
+          type: integer
+        peak_multiplier:
+          type: integer
+        cache_hit_ratio_pct:
+          type: integer
+        avg_payload_kb:
+          type: integer
+        avg_write_qps:
+          type: number
+        avg_read_qps:
+          type: number
+        avg_total_qps:
+          type: number
+        peak_write_qps:
+          type: number
+        peak_read_qps:
+          type: number
+        peak_total_qps:
+          type: number
+        cache_hit_qps:
+          type: number
+        cache_miss_read_qps:
+          type: number
+        origin_db_peak_qps:
+          type: number
+        required_app_pods:
+          type: integer
+        runtime_pod_comparison:
+          $ref: '#/components/schemas/RuntimePodComparison'
+        required_db_primary_shards:
+          type: integer
+        required_db_read_replicas:
+          type: integer
+        required_redis_shards:
+          type: integer
+        required_api_gw_nodes:
+          type: integer
+        required_cdn_gbps:
+          type: number
+        daily_storage_gb:
+          type: number
+        five_year_raw_storage_tb:
+          type: number
+        five_year_replicated_storage_tb:
+          type: number
+        peak_cdn_egress_gbps:
+          type: number
+        monthly_egress_tb:
+          type: number
+        monthly_cloud_cost_usd:
+          type: integer
+        cost_breakdown:
+          $ref: '#/components/schemas/CostBreakdown'
+        tiers:
+          type: array
+          items:
+            $ref: '#/components/schemas/TierHealth'
+        bottlenecks:
+          type: array
+          items:
+            type: string
+        overloaded_tiers:
+          type: array
+          items:
+            type: string
+        overall_status:
+          type: string
+          enum: [healthy, warning, overloaded]
+        provisioned_fleet:
+          $ref: '#/components/schemas/ProvisionedFleet'
+        auto_scaled_fleet:
+          $ref: '#/components/schemas/ProvisionedFleet'

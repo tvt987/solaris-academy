@@ -1,5 +1,6 @@
 """
-Solaris Academy v2.0 — FastAPI AST Auto-Grader, SM-2 Scheduler & HMAC Certificate API.
+Solaris Academy v3.0 — FastAPI AST Auto-Grader, System Design Capacity Estimator,
+SM-2 Scheduler & HMAC Certificate API.
 """
 
 from __future__ import annotations
@@ -13,6 +14,14 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 
 from . import __version__
+from .capacity import (
+    AppRuntime,
+    BlueprintId,
+    ProvisionedFleetSpec,
+    TierId,
+    TierStatus,
+    compute_system_design_capacity,
+)
 from .grader import (
     DEFAULT_MAX_STEPS,
     INITIAL_EASE_FACTOR,
@@ -32,6 +41,7 @@ app = FastAPI(
     version=__version__,
     description=(
         "Production Python 3.12 FastAPI backend providing zero-eval AST sandbox grading, "
+        "FAANG back-of-the-envelope System Design capacity estimation, "
         "SuperMemo-2 spaced-repetition scheduling, and HMAC-SHA256 verifiable certificates."
     ),
 )
@@ -161,6 +171,95 @@ class CertificateVerifyResponse(BaseModel):
     algorithm: str
     reason: str
     verified_at: str
+
+
+class ProvisionedFleetSchema(BaseModel):
+    cdn_gbps: float = Field(..., ge=0.5, le=10_000.0)
+    api_gw_nodes: int = Field(..., ge=1, le=500)
+    app_pods: int = Field(..., ge=1, le=5_000)
+    redis_shards: int = Field(..., ge=1, le=500)
+    db_primary_shards: int = Field(..., ge=1, le=200)
+    db_read_replicas: int = Field(..., ge=1, le=2_000)
+
+
+class SystemDesignCapacityRequest(BaseModel):
+    blueprint_id: BlueprintId = "url-shortener"
+    dau: int = Field(..., ge=10_000, le=10_000_000)
+    read_write_ratio: int = Field(..., ge=10, le=100)
+    peak_multiplier: int = Field(..., ge=3, le=10)
+    cache_hit_ratio_pct: int = Field(..., ge=50, le=98)
+    avg_payload_kb: int = Field(..., ge=1, le=64)
+    runtime: AppRuntime = "dotnet10"
+    provisioned_fleet: ProvisionedFleetSchema | None = None
+    auto_scale: bool = False
+
+
+class TierHealthSchema(BaseModel):
+    id: TierId
+    label: str
+    load_value: float
+    capacity_value: float
+    unit: str
+    utilization_pct: float
+    status: TierStatus
+    provisioned_units: float
+    recommended_units: float
+    summary: str
+
+
+class CostBreakdownSchema(BaseModel):
+    cdn_usd: int
+    api_gw_usd: int
+    app_fleet_usd: int
+    redis_usd: int
+    database_usd: int
+    total_monthly_usd: int
+
+
+class RuntimePodComparisonSchema(BaseModel):
+    dotnet10: int
+    go: int
+    nodejs: int
+
+
+class SystemDesignCapacityResponse(BaseModel):
+    blueprint_id: BlueprintId
+    blueprint_name: str
+    runtime: AppRuntime
+    dau: int
+    read_write_ratio: int
+    peak_multiplier: int
+    cache_hit_ratio_pct: int
+    avg_payload_kb: int
+    avg_write_qps: float
+    avg_read_qps: float
+    avg_total_qps: float
+    peak_write_qps: float
+    peak_read_qps: float
+    peak_total_qps: float
+    cache_hit_qps: float
+    cache_miss_read_qps: float
+    origin_db_peak_qps: float
+    required_app_pods: int
+    runtime_pod_comparison: RuntimePodComparisonSchema
+    required_db_primary_shards: int
+    required_db_read_replicas: int
+    required_redis_shards: int
+    required_api_gw_nodes: int
+    required_cdn_gbps: float
+    daily_storage_gb: float
+    five_year_raw_storage_tb: float
+    five_year_replicated_storage_tb: float
+    peak_cdn_egress_gbps: float
+    monthly_egress_tb: float
+    monthly_cloud_cost_usd: int
+    cost_breakdown: CostBreakdownSchema
+    tiers: list[TierHealthSchema]
+    bottlenecks: list[TierId]
+    overloaded_tiers: list[TierId]
+    overall_status: TierStatus
+    provisioned_fleet: ProvisionedFleetSchema
+    auto_scaled_fleet: ProvisionedFleetSchema
 
 
 # ============================================================================
@@ -307,4 +406,117 @@ def verify_cert(payload: CertificateVerifyRequest) -> CertificateVerifyResponse:
         algorithm=result.algorithm,
         reason=result.reason,
         verified_at=result.verified_at,
+    )
+
+
+@app.post(
+    "/api/v1/system-design/capacity",
+    response_model=SystemDesignCapacityResponse,
+    tags=["System Design Capacity"],
+)
+def estimate_system_design_capacity(
+    payload: SystemDesignCapacityRequest,
+) -> SystemDesignCapacityResponse:
+    fleet_spec = (
+        ProvisionedFleetSpec(
+            cdn_gbps=payload.provisioned_fleet.cdn_gbps,
+            api_gw_nodes=payload.provisioned_fleet.api_gw_nodes,
+            app_pods=payload.provisioned_fleet.app_pods,
+            redis_shards=payload.provisioned_fleet.redis_shards,
+            db_primary_shards=payload.provisioned_fleet.db_primary_shards,
+            db_read_replicas=payload.provisioned_fleet.db_read_replicas,
+        )
+        if payload.provisioned_fleet is not None
+        else None
+    )
+
+    est = compute_system_design_capacity(
+        blueprint_id=payload.blueprint_id,
+        dau=payload.dau,
+        read_write_ratio=payload.read_write_ratio,
+        peak_multiplier=payload.peak_multiplier,
+        cache_hit_ratio_pct=payload.cache_hit_ratio_pct,
+        avg_payload_kb=payload.avg_payload_kb,
+        runtime=payload.runtime,
+        provisioned_fleet=fleet_spec,
+        auto_scale=payload.auto_scale,
+    )
+
+    return SystemDesignCapacityResponse(
+        blueprint_id=est.blueprint_id,
+        blueprint_name=est.blueprint_name,
+        runtime=est.runtime,
+        dau=est.dau,
+        read_write_ratio=est.read_write_ratio,
+        peak_multiplier=est.peak_multiplier,
+        cache_hit_ratio_pct=est.cache_hit_ratio_pct,
+        avg_payload_kb=est.avg_payload_kb,
+        avg_write_qps=est.avg_write_qps,
+        avg_read_qps=est.avg_read_qps,
+        avg_total_qps=est.avg_total_qps,
+        peak_write_qps=est.peak_write_qps,
+        peak_read_qps=est.peak_read_qps,
+        peak_total_qps=est.peak_total_qps,
+        cache_hit_qps=est.cache_hit_qps,
+        cache_miss_read_qps=est.cache_miss_read_qps,
+        origin_db_peak_qps=est.origin_db_peak_qps,
+        required_app_pods=est.required_app_pods,
+        runtime_pod_comparison=RuntimePodComparisonSchema(
+            dotnet10=est.runtime_pod_comparison["dotnet10"],
+            go=est.runtime_pod_comparison["go"],
+            nodejs=est.runtime_pod_comparison["nodejs"],
+        ),
+        required_db_primary_shards=est.required_db_primary_shards,
+        required_db_read_replicas=est.required_db_read_replicas,
+        required_redis_shards=est.required_redis_shards,
+        required_api_gw_nodes=est.required_api_gw_nodes,
+        required_cdn_gbps=est.required_cdn_gbps,
+        daily_storage_gb=est.daily_storage_gb,
+        five_year_raw_storage_tb=est.five_year_raw_storage_tb,
+        five_year_replicated_storage_tb=est.five_year_replicated_storage_tb,
+        peak_cdn_egress_gbps=est.peak_cdn_egress_gbps,
+        monthly_egress_tb=est.monthly_egress_tb,
+        monthly_cloud_cost_usd=est.monthly_cloud_cost_usd,
+        cost_breakdown=CostBreakdownSchema(
+            cdn_usd=est.cost_breakdown.cdn_usd,
+            api_gw_usd=est.cost_breakdown.api_gw_usd,
+            app_fleet_usd=est.cost_breakdown.app_fleet_usd,
+            redis_usd=est.cost_breakdown.redis_usd,
+            database_usd=est.cost_breakdown.database_usd,
+            total_monthly_usd=est.cost_breakdown.total_monthly_usd,
+        ),
+        tiers=[
+            TierHealthSchema(
+                id=t.id,
+                label=t.label,
+                load_value=t.load_value,
+                capacity_value=t.capacity_value,
+                unit=t.unit,
+                utilization_pct=t.utilization_pct,
+                status=t.status,
+                provisioned_units=t.provisioned_units,
+                recommended_units=t.recommended_units,
+                summary=t.summary,
+            )
+            for t in est.tiers
+        ],
+        bottlenecks=est.bottlenecks,
+        overloaded_tiers=est.overloaded_tiers,
+        overall_status=est.overall_status,
+        provisioned_fleet=ProvisionedFleetSchema(
+            cdn_gbps=est.provisioned_fleet.cdn_gbps,
+            api_gw_nodes=est.provisioned_fleet.api_gw_nodes,
+            app_pods=est.provisioned_fleet.app_pods,
+            redis_shards=est.provisioned_fleet.redis_shards,
+            db_primary_shards=est.provisioned_fleet.db_primary_shards,
+            db_read_replicas=est.provisioned_fleet.db_read_replicas,
+        ),
+        auto_scaled_fleet=ProvisionedFleetSchema(
+            cdn_gbps=est.auto_scaled_fleet.cdn_gbps,
+            api_gw_nodes=est.auto_scaled_fleet.api_gw_nodes,
+            app_pods=est.auto_scaled_fleet.app_pods,
+            redis_shards=est.auto_scaled_fleet.redis_shards,
+            db_primary_shards=est.auto_scaled_fleet.db_primary_shards,
+            db_read_replicas=est.auto_scaled_fleet.db_read_replicas,
+        ),
     )

@@ -9,6 +9,7 @@ import {
   CpuIcon,
   LayersIcon,
   MoonIcon,
+  NetworkScaleIcon,
   SolarisMark,
   SunIcon,
   TerminalIcon,
@@ -64,6 +65,12 @@ export function Header({
       icon: CpuIcon,
     },
     {
+      id: 'system-design',
+      label: copy.tabs.systemDesign,
+      shortLabel: locale === 'vi' ? 'Scale' : 'Scale',
+      icon: NetworkScaleIcon,
+    },
+    {
       id: 'sandbox',
       label: copy.tabs.sandbox,
       shortLabel: 'Lab',
@@ -100,19 +107,19 @@ export function Header({
         <button
           type="button"
           onClick={() => onSelectTab('catalog')}
-          className="group flex min-w-0 items-center gap-2.5 text-left focus:outline-none"
+          className="group flex shrink-0 items-center gap-2 text-left focus:outline-none"
         >
-          <SolarisMark className="h-9 w-9 shrink-0 transition-transform duration-300 group-hover:scale-105" />
+          <SolarisMark className="h-8 w-8 shrink-0 transition-transform duration-300 group-hover:scale-105 sm:h-9 sm:w-9" />
           <div className="min-w-0">
-            <div className="flex items-center gap-2">
-              <span className="font-editorial truncate text-base font-bold tracking-tight text-[var(--sol-text)] sm:text-lg">
+            <div className="flex items-center gap-1.5">
+              <span className="font-editorial whitespace-nowrap text-base font-bold tracking-tight text-[var(--sol-text)] sm:text-lg">
                 Solaris Academy
               </span>
               <span className="hidden rounded border border-blue-700/30 bg-blue-700/10 px-1.5 py-0.5 font-code text-[10px] font-semibold tracking-wider text-blue-700 dark:border-blue-400/30 dark:bg-blue-500/15 dark:text-blue-300 sm:inline-block">
-                v2.0
+                v3.0
               </span>
             </div>
-            <p className="hidden truncate font-code text-[11px] text-[var(--sol-text-muted)] sm:block">
+            <p className="hidden truncate font-code text-[10px] text-[var(--sol-text-muted)] xl:block">
               {copy.brandSub}
             </p>
           </div>
@@ -121,7 +128,7 @@ export function Header({
         {/* Desktop Navigation */}
         <nav
           aria-label="Workspace navigation"
-          className="hidden items-center gap-1 rounded-xl border border-[var(--sol-border)] bg-[var(--sol-bg)] p-1 lg:flex"
+          className="hidden items-center gap-0.5 rounded-xl border border-[var(--sol-border)] bg-[var(--sol-bg)] p-1 lg:flex"
         >
           {navItems.map((item) => {
             const Icon = item.icon;
@@ -132,7 +139,7 @@ export function Header({
                 type="button"
                 data-tab={item.id}
                 onClick={() => onSelectTab(item.id)}
-                className={`relative flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-semibold transition-all ${
+                className={`relative flex items-center gap-1 whitespace-nowrap rounded-lg px-2 py-1.5 text-[11px] font-semibold transition-all xl:px-2.5 xl:text-xs ${
                   active
                     ? 'bg-blue-700 text-white shadow-sm shadow-blue-700/25 dark:bg-blue-600'
                     : 'text-[var(--sol-text-secondary)] hover:bg-[var(--sol-surface)] hover:text-[var(--sol-text)]'
@@ -159,8 +166,8 @@ export function Header({
         </nav>
 
         {/* Right Controls */}
-        <div className="flex shrink-0 items-center gap-1.5 sm:gap-2">
-          <div className="hidden items-center gap-1.5 rounded-lg border border-[var(--sol-border)] bg-[var(--sol-bg)] px-2.5 py-1.5 font-code text-[11px] font-semibold text-[var(--sol-text-secondary)] xl:flex">
+        <div className="flex shrink-0 items-center gap-1.5">
+          <div className="hidden items-center gap-1 rounded-lg border border-[var(--sol-border)] bg-[var(--sol-bg)] px-2 py-1.5 font-code text-[11px] font-semibold text-[var(--sol-text-secondary)] 2xl:flex">
             <BoltIcon className="h-3.5 w-3.5 text-amber-500" />
             <span>LV.{levelProgress.level}</span>
             <span className="text-[var(--sol-text-muted)]">·</span>
@@ -199,10 +206,10 @@ export function Header({
         </div>
       </div>
 
-      {/* Mobile Navigation Bar (6 tabs fit 390px cleanly) */}
+      {/* Mobile Navigation Bar (7 tabs fit 390px cleanly) */}
       <nav
         aria-label="Mobile workspace navigation"
-        className="grid grid-cols-6 gap-1 border-t border-[var(--sol-border)] bg-[var(--sol-surface)] px-1.5 py-1.5 lg:hidden"
+        className="grid grid-cols-7 gap-0.5 border-t border-[var(--sol-border)] bg-[var(--sol-surface)] px-1 py-1.5 lg:hidden"
       >
         {navItems.map((item) => {
           const Icon = item.icon;

@@ -8,6 +8,7 @@ import {
   CpuIcon,
   FlameIcon,
   LayersIcon,
+  NetworkScaleIcon,
   ShieldCheckIcon,
   TerminalIcon,
 } from './Icons';
@@ -75,13 +76,14 @@ export function HeroSection({
             </p>
 
             {/* Primary & Secondary CTAs */}
-            <div className="mt-6 flex flex-wrap items-center gap-3">
+            <div className="mt-6 flex flex-wrap items-center gap-2.5">
               <button
                 type="button"
-                onClick={() => onNavigateTab('sandbox')}
-                className="inline-flex items-center gap-2 rounded-xl bg-blue-700 px-5 py-3 text-sm font-bold text-white shadow-md shadow-blue-700/20 transition-all hover:-translate-y-0.5 hover:bg-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-700 focus:ring-offset-2 dark:bg-blue-600 dark:hover:bg-blue-500 dark:focus:ring-offset-slate-950"
+                data-testid="hero-system-design-cta"
+                onClick={() => onNavigateTab('system-design')}
+                className="inline-flex items-center gap-2 rounded-xl bg-blue-700 px-4 py-2.5 text-xs font-bold text-white shadow-md shadow-blue-700/20 transition-all hover:-translate-y-0.5 hover:bg-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-700 focus:ring-offset-2 dark:bg-blue-600 dark:hover:bg-blue-500 dark:focus:ring-offset-slate-950 sm:text-sm"
               >
-                <TerminalIcon className="h-4 w-4" />
+                <NetworkScaleIcon className="h-4 w-4" />
                 <span>{copy.hero.ctaPrimary}</span>
                 <ArrowRightIcon className="h-4 w-4" />
               </button>
@@ -90,7 +92,7 @@ export function HeroSection({
                 type="button"
                 data-testid="hero-algorithms-cta"
                 onClick={() => onNavigateTab('algorithms')}
-                className="inline-flex items-center gap-2 rounded-xl border border-emerald-600/35 bg-emerald-600/10 px-5 py-3 text-sm font-bold text-emerald-800 transition-all hover:-translate-y-0.5 hover:bg-emerald-600 hover:text-white dark:border-emerald-500/40 dark:bg-emerald-500/15 dark:text-emerald-300 dark:hover:bg-emerald-600 dark:hover:text-white"
+                className="inline-flex items-center gap-1.5 rounded-xl border border-emerald-600/35 bg-emerald-600/10 px-3.5 py-2.5 text-xs font-bold text-emerald-800 transition-all hover:-translate-y-0.5 hover:bg-emerald-600 hover:text-white dark:border-emerald-500/40 dark:bg-emerald-500/15 dark:text-emerald-300 dark:hover:bg-emerald-600 dark:hover:text-white sm:text-sm"
               >
                 <CpuIcon className="h-4 w-4" />
                 <span>{copy.hero.ctaSecondary}</span>
@@ -98,8 +100,18 @@ export function HeroSection({
 
               <button
                 type="button"
+                data-testid="hero-sandbox-cta"
+                onClick={() => onNavigateTab('sandbox')}
+                className="inline-flex items-center gap-1.5 rounded-xl border border-[var(--sol-border-strong)] bg-[var(--sol-surface)] px-3.5 py-2.5 text-xs font-bold text-[var(--sol-text)] transition-all hover:border-blue-700/60 hover:text-blue-700 dark:hover:text-blue-300 sm:text-sm"
+              >
+                <TerminalIcon className="h-4 w-4" />
+                <span>{copy.hero.ctaCodeLab}</span>
+              </button>
+
+              <button
+                type="button"
                 onClick={onScrollToCatalog}
-                className="inline-flex items-center gap-2 rounded-xl border border-[var(--sol-border-strong)] bg-[var(--sol-surface)] px-4 py-3 text-sm font-bold text-[var(--sol-text)] transition-all hover:border-blue-700/60 hover:text-blue-700 dark:hover:text-blue-300"
+                className="inline-flex items-center gap-1.5 rounded-xl border border-[var(--sol-border)] bg-transparent px-3 py-2.5 text-xs font-bold text-[var(--sol-text-secondary)] transition-colors hover:border-blue-700/45 hover:text-blue-700 dark:hover:text-blue-300"
               >
                 <span>{copy.hero.ctaCatalog}</span>
               </button>
