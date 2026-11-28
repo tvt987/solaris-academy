@@ -87,7 +87,7 @@ export default function SystemTopology3DStage({ locale }: SystemTopology3DStageP
     renderer.setSize(width, height);
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
     renderer.toneMappingExposure = 1.08;
-    container.innerHTML = '';
+    container.replaceChildren();
     container.appendChild(renderer.domElement);
 
     // Oxford Daylight Blueprint Studio Lighting
