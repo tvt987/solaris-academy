@@ -116,7 +116,7 @@ export function Header({
                 Solaris Academy
               </span>
               <span className="hidden rounded border border-blue-700/30 bg-blue-700/10 px-1.5 py-0.5 font-code text-[10px] font-semibold tracking-wider text-blue-700 dark:border-blue-400/30 dark:bg-blue-500/15 dark:text-blue-300 sm:inline-block">
-                v3.0
+                v4.0
               </span>
             </div>
             <p className="hidden truncate font-code text-[10px] text-[var(--sol-text-muted)] xl:block">

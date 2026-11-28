@@ -2,7 +2,7 @@ import type { Locale } from '../types/lms';
 
 export const UI_COPY = {
   en: {
-    brandSub: 'Oxford Academic Engineering LMS · v3.0',
+    brandSub: 'Oxford Academic Engineering LMS · v4.0',
     tabs: {
       catalog: 'Courses',
       algorithms: 'Algorithms',
@@ -13,7 +13,7 @@ export const UI_COPY = {
       checkout: 'Tuition',
     },
     hero: {
-      eyebrow: 'SOLARIS v3.0 · OXFORD ACADEMIC LMS, CAPACITY LAB & FASTAPI AUTO-GRADER',
+      eyebrow: 'SOLARIS v4.0 · 3D DISTRIBUTED ARCHITECTURE SANDBOX & FASTAPI AUTO-GRADER',
       titleLine1: 'Master Production Systems',
       titleLine2: 'Through Live Verification.',
       subtitle:
@@ -252,7 +252,7 @@ export const UI_COPY = {
     },
   },
   vi: {
-    brandSub: 'Hệ Thống Đào Tạo Kỹ Sư Chuẩn Học Thuật · v3.0',
+    brandSub: 'Hệ Thống Đào Tạo Kỹ Sư Chuẩn Học Thuật · v4.0',
     tabs: {
       catalog: 'Khóa học',
       algorithms: 'Thuật toán',
@@ -263,7 +263,7 @@ export const UI_COPY = {
       checkout: 'Học phí',
     },
     hero: {
-      eyebrow: 'SOLARIS v3.0 · OXFORD ACADEMIC LMS, PHÒNG LAB CHỊU TẢI & FASTAPI AUTO-GRADER',
+      eyebrow: 'SOLARIS v4.0 · SA BÀN KIẾN TRÚC PHÂN TÁN 3D & FASTAPI AUTO-GRADER',
       titleLine1: 'Làm Chủ Hệ Thống Thực Chiến',
       titleLine2: 'Qua Kiểm Định Trực Tiếp.',
       subtitle:

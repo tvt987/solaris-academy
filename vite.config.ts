@@ -17,8 +17,14 @@ export default defineConfig({
           ) {
             return 'react';
           }
+          if (normalized.includes('/node_modules/three/')) {
+            return 'three';
+          }
           if (normalized.includes('/node_modules/qrcode/')) {
             return 'qrcode';
+          }
+          if (normalized.includes('/src/engines/systemTopology3dEngine')) {
+            return 'topology-3d-engine';
           }
           if (normalized.includes('/src/engines/systemDesignEngine')) {
             return 'system-design-engine';
